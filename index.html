@@ -2323,7 +2323,6 @@ function loadFeedbackInsights() {
     badge.style.display = feedbackInsights.length ? 'inline-flex' : 'none';
   }).catch(function(err) { console.error('[loadFeedbackInsights error]', err && err.code, err); });
 }
-loadFeedbackInsights();
 document.getElementById('feedbackBadge').addEventListener('click', function(e) {
   e.stopPropagation();
   const panel = document.getElementById('feedbackPanel');
@@ -4348,6 +4347,9 @@ function loadQuizParticipantCount() {
   }).catch(function(err) { console.error(err); });
 }
 loadQuizParticipantCount();
+// faqFeedback/faqFeedbackNotes 조회는 fbDb가 초기화된 뒤에 실행해야 해서(그 전에 부르면 TDZ 에러),
+// 함수 정의 바로 뒤가 아니라 다른 초기 로드 호출들 옆인 여기서 호출한다.
+loadFeedbackInsights();
 
 document.getElementById('quizStartBtn').addEventListener('click', startQuiz);
 document.getElementById('quizNickInput').addEventListener('keydown', function(e) {
