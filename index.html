@@ -1124,7 +1124,13 @@
        stats only) instead of continuing to chase pixel-perfect framing in cramped tiles. Desktop
        is untouched — the full collage still shows there, where there's room for it to read well. */
     .hero-gallery { display: none; }
-    .hero-archive-visual { display: none; }
+    /* .hero-archive-visual had the same intent (hide on mobile, same as the gallery) but a
+       plain .hero-archive-visual{display:none} here loses to the higher-specificity
+       .hero.archive-minimal .hero-archive-visual{display:flex} rule above regardless of
+       cascade order, so on the 자료실 tab the 300x300px icon stack kept rendering full-size
+       on phones, cramped against the text above it. Matching the selector's specificity
+       (not just the bare class) is what actually wins. */
+    .hero.archive-minimal .hero-archive-visual { display: none; }
     .hero-text { max-width: 640px; }
   }
 
