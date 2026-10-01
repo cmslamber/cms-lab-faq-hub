@@ -1010,6 +1010,11 @@
      붙였다. <button>이라 브라우저 기본 폰트/정렬을 이 카드 스타일에 맞게 리셋해준다. */
   .hero-stat-link { font-family: inherit; text-align: left; cursor: pointer; margin: 0; }
   .hero-stat-link:hover { background: rgba(255,255,255,.22); }
+  /* 통계 카드 3개(등록된 문의/판매 중인 제품/브랜드)는 전체 총계라 어느 탭에서 봐도 같은
+     숫자가 그대로 반복 노출된다 — 모든 탭 히어로에 똑같은 카드 3개를 찍어내는 대신, 개요
+     역할을 하는 FAQ 랜딩 탭에만 남기고 제품목록/자료실/퀴즈 탭은 숫자 반복 없이 본문으로 더
+     가볍게 이어지도록 뺀다. */
+  .hero:not(.faq-minimal) .hero-stats { display: none; }
   @media (max-width: 480px) {
     /* 34px was tuned for desktop, where the headline has room to breathe on one or two lines.
        On a ~375px phone the same size wraps to 3 lines and eats most of the first screen — Toss's
@@ -4444,22 +4449,12 @@ function animateCount(el) {
   }
   requestAnimationFrame(tick);
 }
-const heroStatEls = document.querySelectorAll('.hero-stat b[data-count]');
-if (heroStatEls.length) {
-  if ('IntersectionObserver' in window) {
-    const statObserver = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          animateCount(entry.target);
-          statObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-    heroStatEls.forEach(function(el) { statObserver.observe(el); });
-  } else {
-    heroStatEls.forEach(function(el) { animateCount(el); });
-  }
-}
+// 히어로 통계는 거의 항상 페이지 로드 즉시 화면 맨 위에 보이는 영역이라, "스크롤해서 보여야
+// 애니메이션 시작"(IntersectionObserver) 방식은 득보다 실이 컸다 — 탭이 백그라운드 상태로
+// 열리거나 레이아웃이 안정되기 전에 observer가 붙는 등 visibility 타이밍에 따라 콜백이 늦게
+// 불리거나 아예 안 불려서 "0개"에서 멈춘 것처럼 보이는 경우가 있었다. 보일 때까지 기다릴
+// 이유가 없으니 값이 준비되는 즉시 바로 애니메이션을 돌린다.
+document.querySelectorAll('.hero-stat b[data-count]').forEach(function(el) { animateCount(el); });
 
 // The hero's one-time page-load entrance animation (heroIn) uses fill-mode "both", which
 // permanently pins opacity at its end-state (1) even after the animation finishes — a running
