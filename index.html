@@ -1152,6 +1152,16 @@
     50% { transform: translateY(-9px) rotate(4deg); }
   }
   .quiz-intro-badge { display: inline-block; background: var(--red-soft); color: var(--red); font-size: 12.5px; font-weight: 700; padding: 7px 14px; border-radius: 20px; margin-bottom: 18px; }
+  .ai-callout {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; font-weight: 700; color: var(--red);
+    background: var(--red-soft); padding: 7px 14px; border-radius: 20px;
+    margin: 0 0 14px;
+  }
+  .quiz-participant-count {
+    display: none; font-size: 12.5px; font-weight: 700; color: var(--gray-600);
+    margin: 0 0 18px;
+  }
   .quiz-intro-title { font-size: 22px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.3px; }
   .quiz-intro-sub { font-size: 13.5px; color: var(--gray-600); line-height: 1.7; margin: 0 0 26px; }
   .quiz-nick-input { width: 100%; padding: 15px 18px; border: 1px solid var(--gray-200); border-radius: 12px; font-size: 16px; font-family: inherit; outline: none; margin-bottom: 14px; text-align: center; transition: border-color .12s, box-shadow .12s; background: var(--card-bg); color: var(--black); }
@@ -1480,7 +1490,6 @@
   <div class="site-inner">
     <div class="brandrow">
       <div class="wordmark"><span class="wordmark-logo" id="wordmarkLogo">Cell Fusion C</span></div>
-      <span class="internal-badge">CMS Lab 내부 CS 참고용</span>
     </div>
     <div class="section-tabs" id="sectionTabs">
       <button class="section-tab active" data-view="faq">제품 문의 FAQ</button>
@@ -1578,8 +1587,8 @@
   <div class="view active" id="view-faq">
     <div class="fav-section" id="favSection"></div>
     <div class="top-faq-section" id="topFaqSection"></div>
-    <div class="recent-viewed-section" id="recentViewedSection"></div>
-    <div class="toolbar">
+    <p class="ai-callout">✨ AI가 통합한 400+ CS 데이터에서 바로 찾아드려요</p>
+    <div class="toolbar">    <div class="toolbar">
       <div class="search-wrap">
         <input type="text" class="searchbox" id="searchInput" placeholder="질문 또는 답변 내용으로 검색... (오타·유사어도 인식해요)" autocomplete="off">
         <div class="search-suggest" id="searchSuggest"></div>
@@ -1637,6 +1646,7 @@
           <div class="quiz-intro-badge">CMS Lab 제품 지식 퀴즈</div>
           <h2 class="quiz-intro-title">우리 제품, 얼마나 알고 계세요?</h2>
           <p class="quiz-intro-sub">실제 FAQ에 올라온 질문들로 만든 30문제예요.<br>닉네임만 입력하면 바로 시작해요!</p>
+          <p class="quiz-participant-count" id="quizParticipantCount"></p>
           <input type="text" id="quizNickInput" class="quiz-nick-input" placeholder="닉네임 또는 이름을 입력하세요 (최대 30자)" maxlength="30">
           <button class="quiz-start-btn" id="quizStartBtn" type="button">퀴즈 시작하기 →</button>
           <a class="quiz-leaderboard-link" id="quizLeaderboardLink">🏆 실시간 순위표 보기</a>
@@ -4228,6 +4238,29 @@ function loadLeaderboard() {
     listEl.innerHTML = '<div class="empty-state">순위표를 불러오는 중 오류가 발생했어요.</div>';
   });
 }
+
+// 퀴즈 참여 인원 수 — 실제로 쓰이고 있는 툴이라는 걸 체감시켜주는 작은 사회적 증거.
+// 퀴즈 결과 수(quizResults 컬렉션)를 그대로 "도전 횟수"로 보여준다 — 리더보드와 동일하게
+// 스팸/테스트 응답은 isTestEntry()로 제외한다. 데이터가 없거나 Firebase 연결에 실패하면
+// 조용히 숨긴 채로 둔다(요소 자체가 기본 display:none).
+function loadQuizParticipantCount() {
+  const el = document.getElementById('quizParticipantCount');
+  if (!el) return;
+  const db = ensureFirebase();
+  if (!db) return;
+  db.collection('quizResults').get().then(function(snap) {
+    let n = 0;
+    snap.forEach(function(doc) {
+      if (isTestEntry(doc.data().name)) return;
+      n++;
+    });
+    if (n > 0) {
+      el.textContent = '🔥 이미 ' + n + '명이 도전했어요';
+      el.style.display = 'block';
+    }
+  }).catch(function(err) { console.error(err); });
+}
+loadQuizParticipantCount();
 
 document.getElementById('quizStartBtn').addEventListener('click', startQuiz);
 document.getElementById('quizNickInput').addEventListener('keydown', function(e) {
