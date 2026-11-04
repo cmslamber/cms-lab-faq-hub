@@ -218,10 +218,14 @@
     padding: 5px 11px; border-radius: 20px; white-space: nowrap; align-self: center;
   }
 
-  .section-tabs { display: flex; align-items: center; gap: 30px; margin-top: 16px; position: relative; }
+  .section-tabs { display: flex; align-items: center; gap: 16px; margin-top: 16px; position: relative; }
+  /* 탭 5개(전성분 추가분 포함)가 검색 버튼까지 합쳐 390px 화면에 다 들어가지 않을 수 있어서,
+     탭 줄만 따로 가로 스크롤 컨테이너로 감쌌다 — 검색 버튼은 이 스크롤 밖에 있어 항상 보인다.
+     탭 인디케이터(.tab-indicator)는 이 컨테이너의 자식이라 스크롤과 함께 자연스럽게 움직인다. */
+  .section-tabs-scroll { display: flex; align-items: center; gap: 30px; position: relative; flex: 1 1 auto; min-width: 0; }
   .section-tab {
     background: none; border: none; font-size: 16px; font-weight: 700; color: var(--gray-400);
-    padding: 10px 2px 15px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
+    padding: 10px 2px 15px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; flex: none;
   }
   .section-tab.active { color: var(--black); }
   .section-tab:hover:not(.active) { color: var(--gray-600); }
@@ -230,12 +234,14 @@
     border-radius: 2px; transition: transform .3s var(--ease), width .3s var(--ease); transform: translateX(0);
   }
   @media (max-width: 480px) {
-    /* the header search button plus its share of the 30px flex gap added ~60px of new width
-       demand to a row that previously just barely fit "제품 문의 FAQ / 제품 목록 / ⁉️ QUIZ" on a
-       390px-wide screen — without this, the flex items shrank below their content's natural
-       width and the labels wrapped onto two lines. Tightening the gap and trimming the tab
-       font-size/padding a touch reclaims enough room to keep every label on one line again. */
-    .section-tabs { gap: 14px; }
+    /* the header search button plus its share of the flex gap added new width demand to a row
+       that previously just barely fit the tab labels on a 390px-wide screen — without this, the
+       flex items shrank below their content's natural width and the labels wrapped onto two
+       lines. Tightening the gap and trimming the tab font-size/padding a touch reclaims enough
+       room; the tab row itself can still scroll sideways (.section-tabs-scroll) if even that's
+       not enough once every tab is counted. */
+    .section-tabs { gap: 10px; }
+    .section-tabs-scroll { gap: 14px; }
     .section-tab { font-size: 14.5px; padding: 10px 1px 13px; }
   }
 
@@ -1170,12 +1176,6 @@
     50% { transform: translateY(-9px) rotate(4deg); }
   }
   .quiz-intro-badge { display: inline-block; background: var(--red-soft); color: var(--red); font-size: 12.5px; font-weight: 700; padding: 7px 14px; border-radius: 20px; margin-bottom: 18px; }
-  .ai-callout {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12.5px; font-weight: 700; color: var(--red);
-    background: var(--red-soft); padding: 7px 14px; border-radius: 20px;
-    margin: 0 0 14px;
-  }
   .quiz-participant-count {
     display: none; font-size: 12.5px; font-weight: 700; color: var(--gray-600);
     margin: 0 0 18px;
@@ -1501,6 +1501,118 @@
   .changelog-date { font-size: 10.5px; font-weight: 800; color: var(--accent); letter-spacing: .02em; margin-bottom: 4px; }
   .changelog-title { font-size: 13.5px; font-weight: 700; color: var(--black); line-height: 1.5; }
 
+  /* 전성분 탭 — 제품 카드에 전성분 전체를 바로 보여주고(기본은 접힌 상태), "비교하기"에
+     체크하면 하단 비교함에 쌓인다. 전성분이 없는 32개 제품(이미지로만 제공되는 자사몰)은
+     체크박스 자체를 비활성화하고 공식 페이지 안내만 보여준다. */
+  .ing-card {
+    background: var(--card-bg); border: 1px solid var(--gray-200); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .ing-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .ing-card-title { font-size: 13.5px; font-weight: 700; color: var(--gray-900); line-height: 1.5; }
+  .ing-card-code { margin-top: 2px; font-size: 10.5px; color: var(--gray-400); }
+  .ing-compare-label {
+    display: flex; align-items: center; gap: 6px; flex: none; font-size: 11.5px; font-weight: 700;
+    color: var(--gray-600); cursor: pointer; white-space: nowrap; padding: 4px 2px;
+  }
+  .ing-compare-label input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+  .ing-compare-label.disabled { color: var(--gray-400); cursor: default; }
+  .ing-full-wrap { margin-top: 10px; }
+  .ing-full-toggle {
+    background: var(--gray-100); border: none; border-radius: 8px; padding: 6px 11px;
+    font-size: 11.5px; font-weight: 700; color: var(--gray-600); cursor: pointer; font-family: inherit;
+  }
+  .ing-full-text {
+    margin-top: 8px; font-size: 12px; line-height: 1.7; color: var(--gray-600);
+    background: var(--gray-100); border-radius: 10px; padding: 10px 12px; display: none;
+  }
+  .ing-full-text.open { display: block; }
+  .ing-missing-note { margin-top: 10px; font-size: 11.5px; color: var(--gray-400); font-style: italic; }
+
+  .compare-tray {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 250;
+    display: flex; justify-content: center; padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0));
+    pointer-events: none;
+  }
+  .compare-tray-inner {
+    pointer-events: auto; width: 100%; max-width: 760px; background: var(--card-bg);
+    border: 1px solid var(--gray-200); border-radius: 16px; box-shadow: 0 16px 40px rgba(0,0,0,.18);
+    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; flex-wrap: wrap;
+  }
+  .compare-tray-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1 1 auto; min-width: 0; }
+  .compare-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--accent-soft);
+    color: var(--accent-badge-text); font-size: 11.5px; font-weight: 700; padding: 5px 6px 5px 10px;
+    border-radius: 16px; max-width: 220px;
+  }
+  .compare-chip span.name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .compare-chip button {
+    flex: none; width: 16px; height: 16px; border-radius: 50%; border: none; background: rgba(0,0,0,.08);
+    color: inherit; font-size: 11px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .compare-tray-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+  .compare-tray-clear {
+    background: none; border: none; color: var(--gray-400); font-size: 12px; font-weight: 700;
+    cursor: pointer; font-family: inherit; padding: 6px 4px;
+  }
+  .compare-tray-btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 10px 18px;
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .compare-tray-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .compare-overlay {
+    position: fixed; inset: 0; z-index: 300; background: rgba(20,20,20,.55);
+    display: flex; align-items: center; justify-content: center; padding: 6vh 20px;
+    opacity: 0; pointer-events: none; transition: opacity .16s var(--ease);
+  }
+  .compare-overlay.show { opacity: 1; pointer-events: auto; }
+  .compare-box {
+    width: 100%; max-width: 1040px; max-height: 86vh; display: flex; flex-direction: column;
+    background: var(--card-bg); border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.35);
+    overflow: hidden; transform: translateY(-8px) scale(.98); transition: transform .2s var(--spring);
+  }
+  .compare-overlay.show .compare-box { transform: translateY(0) scale(1); }
+  @media (max-width: 760px) {
+    .compare-overlay { align-items: flex-end; padding: 0; }
+    .compare-box {
+      max-width: 100%; max-height: 92vh; border-radius: 18px 18px 0 0;
+      transform: translateY(100%); transition: transform .24s var(--spring);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .compare-overlay.show .compare-box { transform: translateY(0); }
+  }
+  .compare-header-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 18px 20px 4px; flex: none;
+  }
+  .compare-header-title { font-size: 16px; font-weight: 800; color: var(--black); }
+  .compare-close-btn {
+    flex: none; display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--gray-100);
+    color: var(--gray-600); cursor: pointer; padding: 0;
+  }
+  .compare-sub { padding: 0 20px 14px; font-size: 12px; color: var(--gray-600); flex: none; }
+  .compare-cols {
+    display: flex; gap: 14px; overflow-x: auto; overflow-y: hidden; padding: 0 20px 20px; flex: 1 1 auto;
+  }
+  .compare-col {
+    flex: 1 1 0; min-width: 220px; max-width: 320px; display: flex; flex-direction: column;
+    border: 1px solid var(--gray-200); border-radius: 12px; overflow: hidden;
+  }
+  .compare-col-head { padding: 12px 14px; border-bottom: 1px solid var(--gray-200); background: var(--gray-100); flex: none; }
+  .compare-col-name { font-size: 12.5px; font-weight: 700; color: var(--gray-900); line-height: 1.5; }
+  .compare-col-code { margin-top: 2px; font-size: 10px; color: var(--gray-400); }
+  .compare-col-body { padding: 12px 14px; overflow-y: auto; flex: 1 1 auto; }
+  .ing-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .ing-chip {
+    font-size: 11px; line-height: 1.5; padding: 3px 8px; border-radius: 10px; background: var(--gray-100);
+    color: var(--gray-600);
+  }
+  .ing-chip.common { background: var(--accent-soft); color: var(--accent-badge-text); font-weight: 700; }
+  .compare-common-note { margin-top: 2px; font-weight: 700; color: var(--accent-badge-text); }
+
   /* 자료실/제품목록/퀴즈 비밀번호 잠금 화면 — 퀴즈 카드와 동일한 톤으로 맞춰서 별도 디자인
      시스템처럼 보이지 않게 한다. */
   .protected-lock { display: flex; justify-content: center; padding: 40px 0 10px; }
@@ -1534,11 +1646,18 @@
       <div class="wordmark"><span class="wordmark-logo" id="wordmarkLogo">Cell Fusion C</span></div>
     </div>
     <div class="section-tabs" id="sectionTabs">
-      <button class="section-tab active" data-view="faq">제품 문의 FAQ</button>
-      <button class="section-tab" data-view="products">제품 목록</button>
-      <button class="section-tab" data-view="archive">📁 자료실</button>
-      <button class="section-tab" data-view="quiz">⁉️ QUIZ</button>
-      <span class="tab-indicator" id="tabIndicator"></span>
+      <!-- 전성분 탭이 추가되면서(5번째 탭) 좁은 화면(~390px)에서 마지막 탭("QUIZ")이 화면
+           밖으로 잘려 나가는 문제가 생겼다 — 탭 줄만 따로 가로 스크롤되게 감싸서(검색 버튼은
+           스크롤 밖에 고정) 탭이 늘어나도 잘리지 않고 옆으로 스와이프해서 보게 했다. 칩 줄에
+           이미 쓰던 .chiprow-scroll(가로 스크롤 + 오른쪽 페이드 힌트)을 그대로 재사용한다. -->
+      <div class="section-tabs-scroll chiprow-scroll" id="sectionTabsScroll">
+        <button class="section-tab active" data-view="faq">제품 문의 FAQ</button>
+        <button class="section-tab" data-view="products">제품 목록</button>
+        <button class="section-tab" data-view="ingredients">전성분</button>
+        <button class="section-tab" data-view="archive">📁 자료실</button>
+        <button class="section-tab" data-view="quiz">⁉️ QUIZ</button>
+        <span class="tab-indicator" id="tabIndicator"></span>
+      </div>
       <button class="cmdk-trigger" id="cmdkTrigger" type="button" aria-label="통합 검색 (FAQ + 제품)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <span class="cmdk-trigger-label">FAQ·제품 통합검색</span>
@@ -1629,7 +1748,6 @@
   <div class="view active" id="view-faq">
     <div class="fav-section" id="favSection"></div>
     <div class="top-faq-section" id="topFaqSection"></div>
-    <p class="ai-callout">✨ AI가 통합한 400+ CS 데이터에서 바로 찾아드려요</p>
     <div class="toolbar">
       <div class="search-wrap">
         <input type="text" class="searchbox" id="searchInput" placeholder="질문 또는 답변 내용으로 검색... (오타·유사어도 인식해요)" autocomplete="off">
@@ -1680,6 +1798,18 @@
     </div>
     <div id="prodContent"></div>
     </div>
+  </div>
+
+  <div class="view" id="view-ingredients">
+    <div class="toolbar prod-toolbar">
+      <div class="search-wrap">
+        <input type="text" class="searchbox" id="ingSearchInput" placeholder="제품명, 성분명, 품목코드로 검색... (예: 무기자차, 히알루론산)" autocomplete="off">
+      </div>
+    </div>
+    <div class="prod-summary-row">
+      <div class="summary-bar" id="ingSummaryBar"></div>
+    </div>
+    <div id="ingContent"></div>
   </div>
 
   <div class="view" id="view-archive">
@@ -1754,6 +1884,32 @@
   </div>
 
 </main>
+
+<!-- 전성분 비교함 — 전성분 탭에서 "비교하기"에 체크한 제품들을 담아두는 하단 고정 바.
+     전성분이 있는 제품(83/115)만 담을 수 있고, 최대 4개까지(요청: "탭 하나를 더 파서
+     전성분끼리 비교"). 탭을 벗어나도 선택은 유지되지만 바는 전성분 탭에서만 보인다. -->
+<div class="compare-tray" id="compareTray" style="display:none;">
+  <div class="compare-tray-inner">
+    <div class="compare-tray-chips" id="compareTrayChips"></div>
+    <div class="compare-tray-actions">
+      <button type="button" class="compare-tray-clear" id="compareTrayClear">모두 지우기</button>
+      <button type="button" class="compare-tray-btn" id="compareTrayBtn">비교하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="compare-overlay" id="compareOverlay" role="dialog" aria-modal="true" aria-label="전성분 비교">
+  <div class="compare-box">
+    <div class="compare-header-row">
+      <span class="compare-header-title">전성분 비교</span>
+      <button class="compare-close-btn" id="compareCloseBtn" type="button" aria-label="닫기">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="compare-sub" id="compareSub"></div>
+    <div class="compare-cols" id="compareCols"></div>
+  </div>
+</div>
 
 <footer class="site-footer">
   <div class="site-footer-inner">
@@ -1962,6 +2118,11 @@ const VIEW_HERO_COPY = {
     eyebrow: 'CMS Lab · 자료실',
     title: '필요한 제품소개서,<br>클릭 한 번으로 받으세요',
     sub: '제품 소개서를 필요할 때마다 간편하게 꺼내 써보세요.<br>헤매지 않게 항상 최신 파일로만 올려둘게요.'
+  },
+  ingredients: {
+    eyebrow: 'CMS Lab · 전성분 정보',
+    title: '성분이 궁금할 땐,<br>검색하고 비교해보세요',
+    sub: '제품별 전성분을 모아뒀어요.<br>최대 4개까지 골라서 성분을 나란히 비교할 수 있어요.'
   }
 };
 
@@ -2165,6 +2326,10 @@ let currentQuery = '';
 let currentProdCat = '';
 let currentProdBrand = '';
 let prodSearchQuery = '';
+let ingSearchQuery = '';
+let ingExpanded = new Set(); // 전성분 전체보기를 펼친 카드들의 key(itemCode||name)
+const COMPARE_MAX = 4;
+let compareSet = new Set(); // 전성분 비교함에 담긴 제품 key(itemCode||name)
 let currentResCat = '';
 let currentResBrand = '';
 // 'grid' | 'list' | 'compact' — 예전엔 브라우저별 localStorage에 마지막으로 고른 보기 방식을
@@ -3137,7 +3302,7 @@ document.addEventListener('click', function(e) {
 }, true);
 
 function updateTabIndicator() {
-  const wrap = document.getElementById('sectionTabs');
+  const wrap = document.getElementById('sectionTabsScroll');
   const indicator = document.getElementById('tabIndicator');
   const activeBtn = wrap ? wrap.querySelector('.section-tab.active') : null;
   if (!wrap || !indicator || !activeBtn) return;
@@ -3153,6 +3318,7 @@ function renderSectionTabs() {
   });
   document.getElementById('view-faq').classList.toggle('active', currentView === 'faq');
   document.getElementById('view-products').classList.toggle('active', currentView === 'products');
+  document.getElementById('view-ingredients').classList.toggle('active', currentView === 'ingredients');
   document.getElementById('view-archive').classList.toggle('active', currentView === 'archive');
   document.getElementById('view-quiz').classList.toggle('active', currentView === 'quiz');
   // collapse the big hero banner while quizzing so mobile screens have enough room to
@@ -3195,8 +3361,10 @@ function switchToView(view) {
   if (currentView === 'faq') { renderCatSelect(); renderContent(); }
   else if (!protectedUnlocked && PROTECTED_VIEWS.indexOf(currentView) !== -1) { /* 잠금 화면만 표시, 렌더 보류 */ }
   else if (currentView === 'products') { renderProdContent(); }
+  else if (currentView === 'ingredients') { renderIngContent(); }
   else if (currentView === 'archive') { renderArchiveContent(); }
   else { renderQuiz(); }
+  updateCompareTray();
 }
 
 document.querySelectorAll('.section-tab').forEach(function(btn) {
@@ -4154,6 +4322,172 @@ function renderProdContent() {
   observeReveals();
 }
 
+// --- 전성분 탭 ("탭 하나를 더 파서 전성분 다 나오게 하고 전성분끼리 비교" 요청) --------------
+// itemCode가 없는 제품(3개) 대비 name을 fallback 키로 쓴다 — PRODUCTS 내에서 제품명은
+// 전부 유일하다고 가정(실제로 겹치는 이름이 없음을 확인함).
+function productKey(p) { return p.itemCode || p.name; }
+function findProductByKey(key) {
+  return PRODUCTS_FLAT.filter(function(p) { return productKey(p) === key; })[0];
+}
+
+function renderIngContent() {
+  const normQuery = normalizeProdSearch(ingSearchQuery);
+  const matchAll = function(p) { return productMatchesSearch(p, normQuery); };
+  let withTextTotal = 0, shownTotal = 0;
+  PRODCATS.forEach(function(c) {
+    (PRODUCTS[c] || []).forEach(function(p) { if (p.ingredients) withTextTotal++; });
+    shownTotal += (PRODUCTS[c] || []).filter(matchAll).length;
+  });
+  const searchHint = normQuery ? ' · "' + escapeHtml(ingSearchQuery) + '" 검색 결과' : '';
+  document.getElementById('ingSummaryBar').innerHTML =
+    '전체 <b>' + shownTotal + '개</b> 제품 · 전성분 텍스트 확보 ' + withTextTotal + '개' + searchHint;
+
+  let html = '';
+  PRODCATS.forEach(function(cat) {
+    const items = (PRODUCTS[cat] || []).filter(matchAll).slice().sort(function(a, b) {
+      return a.name.localeCompare(b.name, 'ko', { numeric: true, sensitivity: 'base' });
+    });
+    if (!items.length) return;
+    html += '<div class="prod-cat-head"><div class="cat-icon">' + iconFor(cat) + '</div><div class="cat-title-text">' + escapeHtml(cat) + '</div><div class="cat-n">' + items.length + '개</div></div>';
+    items.forEach(function(p) {
+      const key = productKey(p);
+      const tagBrand = p.brand || 'CFC';
+      const tagTheme = HERO_THEMES[tagBrand] || HERO_THEMES.CFC;
+      const brandTag = PRODBRANDS.length > 1
+        ? '<span class="prod-brand-tag" style="color:' + (tagTheme.badgeText || tagTheme.accent) + ';background:' + tagTheme.accentSoft + '">' + tagBrand + '</span>'
+        : '';
+      const codeLine = (p.itemCode || p.sunFilterType)
+        ? '<div class="ing-card-code">' + escapeHtml(p.itemCode || '') + (p.itemCode && p.sunFilterType ? ' · ' : '') + escapeHtml(p.sunFilterType || '') + '</div>'
+        : '';
+      const hasIng = !!p.ingredients;
+      const isOpen = ingExpanded.has(key);
+      const compareHtml = '<label class="ing-compare-label' + (hasIng ? '' : ' disabled') + '">' +
+        '<input type="checkbox" class="ing-compare-check" data-key="' + escapeHtml(key) + '"' +
+        (compareSet.has(key) ? ' checked' : '') + (hasIng ? '' : ' disabled') + '>비교하기</label>';
+      const bodyHtml = hasIng
+        ? '<div class="ing-full-wrap">' +
+            '<button type="button" class="ing-full-toggle" data-key="' + escapeHtml(key) + '">' + (isOpen ? '전성분 접기 ▲' : '전성분 전체보기 ▾') + '</button>' +
+            '<div class="ing-full-text' + (isOpen ? ' open' : '') + '">' + escapeHtml(p.ingredients) + '</div>' +
+          '</div>'
+        : '<div class="ing-missing-note">전성분은 공식 페이지에서 확인해주세요' +
+            (p.url ? ' — <a href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">바로가기</a>' : '') + '</div>';
+      html += '<div class="ing-card">' +
+          '<div class="ing-card-head">' +
+            '<div><div class="ing-card-title">' + brandTag + escapeHtml(p.name) + '</div>' + codeLine + '</div>' +
+            compareHtml +
+          '</div>' +
+          bodyHtml +
+        '</div>';
+    });
+  });
+  const ingContentEl = document.getElementById('ingContent');
+  const emptySub = normQuery ? '다른 검색어로 다시 시도해보세요.' : '';
+  ingContentEl.innerHTML = html || '<div class="empty-state"><div class="empty-emoji">🧪</div><div class="empty-title">해당하는 제품이 없어요</div><div class="empty-sub">' + emptySub + '</div></div>';
+
+  Array.from(ingContentEl.querySelectorAll('.ing-full-toggle')).forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const key = btn.getAttribute('data-key');
+      if (ingExpanded.has(key)) ingExpanded.delete(key); else ingExpanded.add(key);
+      renderIngContent();
+    });
+  });
+  Array.from(ingContentEl.querySelectorAll('.ing-compare-check')).forEach(function(cb) {
+    cb.addEventListener('change', function() { toggleCompare(cb.getAttribute('data-key'), cb.checked); });
+  });
+}
+
+function toggleCompare(key, checked) {
+  if (checked) {
+    if (compareSet.size >= COMPARE_MAX) {
+      showCopyToast('전성분 비교는 최대 ' + COMPARE_MAX + '개까지 가능해요');
+      renderIngContent(); // 체크 안 된 상태로 되돌리기 위해 다시 그림
+      return;
+    }
+    compareSet.add(key);
+  } else {
+    compareSet.delete(key);
+  }
+  updateCompareTray();
+}
+
+// 전성분 탭에 있을 때만, 담긴 게 있을 때만 하단에 떠 있는 바 — 탭을 옮겨도 선택은 유지되지만
+// (다시 전성분 탭으로 돌아오면 그대로 담겨있음) 바 자체는 다른 탭에서는 숨긴다.
+function updateCompareTray() {
+  const tray = document.getElementById('compareTray');
+  if (!tray) return;
+  const show = currentView === 'ingredients' && compareSet.size > 0;
+  tray.style.display = show ? 'flex' : 'none';
+  if (!show) return;
+  const chipsEl = document.getElementById('compareTrayChips');
+  let html = '';
+  compareSet.forEach(function(key) {
+    const p = findProductByKey(key);
+    html += '<span class="compare-chip"><span class="name">' + escapeHtml(p ? p.name : key) + '</span>' +
+      '<button type="button" data-key="' + escapeHtml(key) + '" aria-label="제거">✕</button></span>';
+  });
+  chipsEl.innerHTML = html;
+  Array.from(chipsEl.querySelectorAll('button')).forEach(function(b) {
+    b.addEventListener('click', function() {
+      compareSet.delete(b.getAttribute('data-key'));
+      updateCompareTray();
+      if (currentView === 'ingredients') renderIngContent();
+    });
+  });
+  document.getElementById('compareTrayBtn').disabled = compareSet.size < 2;
+}
+
+function openCompareModal() {
+  renderCompareModal();
+  document.getElementById('compareOverlay').classList.add('show');
+}
+function closeCompareModal() {
+  document.getElementById('compareOverlay').classList.remove('show');
+}
+
+function renderCompareModal() {
+  const keys = Array.from(compareSet);
+  const products = keys.map(findProductByKey).filter(Boolean);
+  // 쉼표로 쪼갠 뒤 트림만 해서 비교한다 — 브랜드마다 쉼표 뒤 공백 유무가 달라서(예:
+  // "정제수,징크옥사이드" vs "정제수, 프로판다이올") 트림은 해주지만, 그 이상의 정규화(색소
+  // CI 번호 괄호 제거 등)는 하지 않는다. 즉 완전히 같은 표기일 때만 "공통 성분"으로 잡히고,
+  // 같은 성분이라도 표기가 조금 다르면 공통으로 안 잡힐 수 있다 — 이 한계는 안내 문구로 알린다.
+  const tokenLists = products.map(function(p) {
+    return (p.ingredients || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+  });
+  const countMap = {};
+  tokenLists.forEach(function(tokens) {
+    const seen = new Set();
+    tokens.forEach(function(t) {
+      if (seen.has(t)) return;
+      seen.add(t);
+      countMap[t] = (countMap[t] || 0) + 1;
+    });
+  });
+  const commonSet = new Set(Object.keys(countMap).filter(function(t) { return countMap[t] === products.length && products.length > 1; }));
+
+  document.getElementById('compareSub').innerHTML = products.length < 2
+    ? '2개 이상 선택해야 비교할 수 있어요.'
+    : '똑같은 표기로 일치하는 성분만 <span class="compare-common-note">공통 성분(' + commonSet.size + '개)</span>으로 강조했어요. 브랜드마다 표기(공백, 색소 CI 번호 등)가 달라 같은 성분이어도 강조되지 않을 수 있어요.';
+
+  let colsHtml = '';
+  products.forEach(function(p, idx) {
+    const tagBrand = p.brand || 'CFC';
+    const tagTheme = HERO_THEMES[tagBrand] || HERO_THEMES.CFC;
+    const chips = tokenLists[idx].map(function(t) {
+      return '<span class="ing-chip' + (commonSet.has(t) ? ' common' : '') + '">' + escapeHtml(t) + '</span>';
+    }).join('');
+    colsHtml += '<div class="compare-col">' +
+        '<div class="compare-col-head">' +
+          '<span class="prod-brand-tag" style="color:' + (tagTheme.badgeText || tagTheme.accent) + ';background:' + tagTheme.accentSoft + '">' + tagBrand + '</span>' +
+          '<div class="compare-col-name">' + escapeHtml(p.name) + '</div>' +
+          (p.itemCode ? '<div class="compare-col-code">' + escapeHtml(p.itemCode) + '</div>' : '') +
+        '</div>' +
+        '<div class="compare-col-body"><div class="ing-chip-list">' + chips + '</div></div>' +
+      '</div>';
+  });
+  document.getElementById('compareCols').innerHTML = colsHtml;
+}
+
 // 자료실 정렬 기준(요청: "셀퓨전씨 > 수이스킨 > 키즈토즈 순이고 가나다 순으로 정렬해줘") —
 // 여기 명시된 세 브랜드가 항상 먼저 이 순서대로 오고, 그 외 브랜드(더마블록/리페라 등)는 뒤로
 // 밀려 브랜드 코드 알파벳순으로 묶인다. 같은 브랜드 안에서는 이름을 가나다순으로 정렬하되,
@@ -4679,6 +5013,30 @@ document.getElementById('prodSearchInput').addEventListener('keydown', function(
   }
 });
 
+document.getElementById('ingSearchInput').addEventListener('input', function(e) {
+  ingSearchQuery = e.target.value;
+  renderIngContent();
+});
+document.getElementById('ingSearchInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { e.target.value = ''; ingSearchQuery = ''; renderIngContent(); e.target.blur(); }
+});
+document.getElementById('compareTrayClear').addEventListener('click', function() {
+  compareSet.clear();
+  updateCompareTray();
+  if (currentView === 'ingredients') renderIngContent();
+});
+document.getElementById('compareTrayBtn').addEventListener('click', function() {
+  if (compareSet.size < 2) return;
+  openCompareModal();
+});
+document.getElementById('compareCloseBtn').addEventListener('click', closeCompareModal);
+document.getElementById('compareOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeCompareModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('compareOverlay').classList.contains('show')) closeCompareModal();
+});
+
 document.getElementById('missBadge').addEventListener('click', function(e) {
   e.stopPropagation();
   const panel = document.getElementById('missPanel');
@@ -4799,6 +5157,11 @@ renderContent();
 renderQuiz();
 renderHeroPersonalNote();
 initFaqClickRanking();
+// 탭 줄(.section-tabs-scroll)은 renderSubtabs()처럼 매번 다시 그려지는 동적 영역이 아니라
+// 정적 마크업이라, wireChipScrollFade를 다른 칩 줄들처럼 렌더마다 재호출할 필요 없이 최초
+// 1회만 걸어주면 된다. sectionTabs 범위로 한정해서 subtabRow 쪽 .chiprow-scroll과 겹치지
+// 않게 한다.
+wireChipScrollFade(document.getElementById('sectionTabs'));
 
 const darkModeToggleBtn = document.getElementById('darkModeToggle');
 if (darkModeToggleBtn) {
