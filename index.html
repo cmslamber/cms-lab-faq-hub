@@ -664,12 +664,16 @@
     border-top: 1px dashed var(--gray-200); font-size: 12.5px; color: var(--gray-400); font-weight: 600;
   }
   .faq-fb-btn {
+    display: flex; align-items: center; justify-content: center;
     border: 1px solid var(--gray-200); background: var(--card-bg); border-radius: 20px; cursor: pointer;
-    font-size: 13px; padding: 5px 12px; line-height: 1; font-family: inherit; color: var(--gray-600);
+    width: 30px; height: 26px; padding: 0; font-family: inherit; color: var(--gray-600);
   }
-  .faq-fb-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .faq-fb-btn svg { width: 14px; height: 14px; display: block; }
+  .faq-fb-btn:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
   .faq-feedback.voted { color: var(--accent-dark); }
-  .faq-fb-thanks { font-size: 12.5px; font-weight: 700; }
+  .faq-fb-thanks { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700; }
+  .faq-fb-icon { display: inline-flex; width: 13px; height: 13px; }
+  .faq-fb-icon svg { width: 100%; height: 100%; display: block; }
 
   /* 👎를 누른 직후에만 잠깐 뜨는 이유 입력 — 투표 자체는 이미 반영된 뒤라 이 프롬프트를
      건너뛰어도 무방하다는 걸 톤으로도 드러내려고 "(선택)"을 라벨에 그대로 남겨뒀다. */
@@ -841,8 +845,9 @@
     .prod-view-toggle { display: none; }
     .prod-summary-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
     .prod-view-cycle-btn { display: flex; margin-top: 12px; }
-    /* 개수 숫자만 감춘다 — "각 브랜드 자사몰 기준" 같은 나머지 안내 문구는 그대로 둔다 */
-    .prod-summary-count { display: none; }
+    /* 개수 숫자와 "(각 브랜드 자사몰 기준)" 괄호 안내문구를 모바일에서 감춘다 — 남겨두면
+       요약줄 텍스트가 길어져 전환 버튼과 한 줄에서 다투다가 두 줄로 꺾이는 문제가 있었다. */
+    .prod-summary-count, .prod-summary-hint { display: none; }
   }
 
   /* 리스트 보기: 썸네일은 왼쪽에 작게, 이름/코드는 오른쪽에 — 한 화면에 더 많은 제품이 들어온다 */
@@ -875,8 +880,30 @@
     .site-footer-inner p.footer-updated { text-align: center; }
   }
 
+  /* 다크모드 토글 + (모바일 전용) 글자 크기 토글을 한 줄에 — 둘 다 "방문자가 직접 조정하는
+     화면 설정"이라 같은 영역에 묶었다. */
+  .footer-controls-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 20px; }
+  .footer-controls-row .theme-toggle { margin: 0; }
+  /* 글자 크기 설정: 모바일에서 "폰트가 좀 크게 느껴진다"는 의견 반영 — body에 zoom을 걸어
+     페이지 전체(패딩/레이아웃 포함)를 비율대로 줄이거나 키운다. px 단위로 흩어진 수백 개
+     폰트 크기를 전부 rem으로 바꾸는 대규모 리팩터 없이도 전체를 일괄 조정할 수 있는 방법.
+     데스크탑에는 이 zoom 조정을 아예 적용하지 않으므로(아래 @media 참고) 버튼도 모바일
+     폭에서만 보이게 숨겨둔다 — PC에서 눌러봐야 아무 효과가 없어 보이는 상황을 막기 위함. */
+  .footer-fontsize-toggle { display: none; }
+  @media (max-width: 480px) {
+    .footer-fontsize-toggle { display: inline-flex; margin: 0; }
+    .footer-fontsize-toggle .mode-btn { padding: 8px 13px; }
+    .footer-fontsize-toggle .mode-btn[data-fontsize="sm"] { font-size: 12px; }
+    .footer-fontsize-toggle .mode-btn[data-fontsize="md"] { font-size: 14.5px; }
+    .footer-fontsize-toggle .mode-btn[data-fontsize="lg"] { font-size: 17px; }
+    /* "보통"을 새 기본값으로 삼아 기존보다 살짝 줄이고, 작게/크게로 벗어날 수 있게 함 */
+    html[data-font-size="sm"] body { zoom: 0.88; }
+    html[data-font-size="md"] body, html:not([data-font-size]) body { zoom: 0.95; }
+    html[data-font-size="lg"] body { zoom: 1.08; }
+  }
+
   .theme-toggle {
-    display: inline-flex; align-items: center; gap: 9px; margin: 0 0 20px; padding: 7px 14px 7px 12px;
+    display: inline-flex; align-items: center; gap: 9px; padding: 7px 14px 7px 12px;
     border-radius: 999px; border: 1px solid var(--gray-200); background: var(--card-bg); cursor: pointer;
     font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--gray-600);
     transition: border-color .2s var(--ease), color .2s var(--ease), background .2s var(--ease), transform .12s var(--ease);
@@ -1509,7 +1536,10 @@
     padding: 14px 16px; margin-bottom: 10px;
   }
   .ing-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-  .ing-card-title { font-size: 13.5px; font-weight: 700; color: var(--gray-900); line-height: 1.5; }
+  .ing-card-title-wrap { cursor: default; }
+  .ing-card-title-wrap.clickable { cursor: pointer; }
+  .ing-card-title-wrap.clickable:hover .ing-card-title { color: var(--accent); }
+  .ing-card-title { font-size: 13.5px; font-weight: 700; color: var(--gray-900); line-height: 1.5; transition: color .12s; }
   .ing-card-code { margin-top: 2px; font-size: 10.5px; color: var(--gray-400); }
   .ing-compare-label {
     display: flex; align-items: center; gap: 6px; flex: none; font-size: 11.5px; font-weight: 700;
@@ -1523,11 +1553,66 @@
     font-size: 11.5px; font-weight: 700; color: var(--gray-600); cursor: pointer; font-family: inherit;
   }
   .ing-full-text {
-    margin-top: 8px; font-size: 12px; line-height: 1.7; color: var(--gray-600);
+    margin-top: 8px; font-size: 12px; line-height: 1.8; color: var(--gray-600);
     background: var(--gray-100); border-radius: 10px; padding: 10px 12px; display: none;
   }
   .ing-full-text.open { display: block; }
   .ing-missing-note { margin-top: 10px; font-size: 11.5px; color: var(--gray-400); font-style: italic; }
+
+  /* 성분명을 클릭하면 역할 설명 팝오버가 뜬다 — 쉼표(.ing-sep)는 그대로 밋밋한 구분자로,
+     성분명(.ing-term)만 점선 밑줄로 "눌러볼 수 있다"는 걸 알린다. 뱃지형 칩으로 안 만든 건
+     제품 하나에 많으면 100개 넘는 성분이 들어있어 전부 칩으로 두르면 너무 빽빽해져서다. */
+  .ing-term { cursor: pointer; border-bottom: 1px dotted var(--gray-400); }
+  .ing-term:hover, .ing-term:focus-visible { color: var(--accent); border-bottom-color: var(--accent); outline: none; }
+  .ing-sep { color: var(--gray-400); }
+  .ing-color-note { font-size: 11px; color: var(--gray-400); font-style: italic; margin-bottom: 6px; }
+  .ing-section-label {
+    display: inline-block; font-size: 10.5px; font-weight: 800; color: var(--accent-badge-text);
+    background: var(--accent-soft); padding: 2px 9px; border-radius: 999px; margin: 8px 0 5px;
+  }
+  .ing-section-sep { height: 1px; background: var(--gray-200); margin: 10px 0; }
+
+  /* 전성분 탭 보기 형식(그리드/리스트/4열) — 제품목록 탭과 동일한 개념(.ing-grid가
+     .prod-grid 자리를 대신한다). 사진이 없는 텍스트 카드라 4열에서도 칸 높이가 들쭉날쭉할
+     수 있는데(펼친 카드만 길어짐) — 그리드의 기본 동작이라 그대로 둔다. */
+  .ing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+  .ing-grid .ing-card { margin-bottom: 0; height: fit-content; }
+  .ing-grid.view-list { display: flex; flex-direction: column; gap: 10px; }
+  .ing-grid.view-compact { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ing-grid.view-compact .ing-card { padding: 10px 12px; }
+  .ing-grid.view-compact .ing-card-title { font-size: 12px; }
+  @media (max-width: 640px) { .ing-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 420px) { .ing-grid.view-compact { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+
+  /* 성분 구성비 도넛차트 — conic-gradient로 그려서 라이브러리 없이 가볍게. 가운데 구멍에
+     전체 성분 개수를 띄우고, 오른쪽 범례에 카테고리명+비율을 나란히 둔다(색만으로 구분하지
+     않도록 라벨과 숫자를 항상 같이 보여줌). */
+  .ing-donut-block {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 12px; padding-bottom: 12px;
+    border-bottom: 1px dashed var(--gray-200);
+  }
+  .ing-donut { width: 68px; height: 68px; min-width: 68px; border-radius: 50%; position: relative; }
+  .ing-donut-hole {
+    position: absolute; inset: 16%; border-radius: 50%; background: var(--card-bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .ing-donut-n { font-size: 14px; font-weight: 800; color: var(--gray-900); line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .ing-donut-hole small { font-size: 8.5px; color: var(--gray-400); }
+  .ing-donut-legend { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .ing-donut-legend-row { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--gray-600); }
+  .ing-donut-dot { width: 8px; height: 8px; min-width: 8px; border-radius: 50%; }
+  .ing-donut-legend-label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ing-donut-legend-pct { font-weight: 700; color: var(--gray-900); font-variant-numeric: tabular-nums; }
+
+  /* 성분 클릭 팝오버 — 전성분 탭 카드(.ing-term)와 비교 모달 칩(.ing-chip) 둘 다 공용으로 쓴다 */
+  .ing-popover {
+    position: absolute; z-index: 9999; width: 220px; background: var(--card-bg);
+    border: 1px solid var(--gray-200); border-radius: 12px; box-shadow: 0 16px 36px rgba(0,0,0,.2);
+    padding: 11px 13px; display: none;
+  }
+  .ing-pop-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 999px; margin-bottom: 6px; }
+  .ing-pop-name { font-size: 12.5px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; line-height: 1.4; }
+  .ing-pop-desc { font-size: 11.5px; color: var(--gray-600); line-height: 1.55; }
 
   .compare-tray {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 250;
@@ -1582,6 +1667,12 @@
       padding-bottom: env(safe-area-inset-bottom, 0);
     }
     .compare-overlay.show .compare-box { transform: translateY(0); }
+    /* 모바일 최적화: 칼럼이 좁은 폭(min-width:220px)에 눌려 가로로 스크롤되던 걸(안에서 또
+       세로 스크롤까지 겹쳐 이중 스크롤) 세로로 쌓이는 1열 레이아웃으로 바꾼다 — 칼럼마다
+       자체 스크롤 없이 모달 전체가 하나의 세로 스크롤만 갖는다. */
+    .compare-cols { flex-direction: column; overflow-x: hidden; overflow-y: auto; gap: 16px; }
+    .compare-col { max-width: 100%; min-width: 0; }
+    .compare-col-body { overflow-y: visible; flex: none; }
   }
   .compare-header-row {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -1608,10 +1699,23 @@
   .ing-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
   .ing-chip {
     font-size: 11px; line-height: 1.5; padding: 3px 8px; border-radius: 10px; background: var(--gray-100);
-    color: var(--gray-600);
+    color: var(--gray-600); cursor: pointer;
   }
+  .ing-chip:hover { filter: brightness(.94); }
   .ing-chip.common { background: var(--accent-soft); color: var(--accent-badge-text); font-weight: 700; }
   .compare-common-note { margin-top: 2px; font-weight: 700; color: var(--accent-badge-text); }
+
+  /* 어떤 성분이 공통인지 칼럼마다 찾아보지 않아도 되도록, 모달 맨 위에 공통 성분 칩을
+     먼저 요약해 보여주는 영역 — 칼럼 목록(.compare-col-body의 .ing-chip-list)과 똑같은
+     칩 스타일을 그대로 재사용하되, 강조용으로 살짝 더 도드라지는 배경을 깐다. */
+  .compare-common-summary {
+    margin: 0 20px 14px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft);
+    font-size: 12px; color: var(--gray-600);
+  }
+  .compare-common-summary-label { display: block; font-size: 12.5px; font-weight: 800; color: var(--accent-badge-text); margin-bottom: 8px; }
+  .compare-common-summary .ing-chip-list { gap: 6px; }
+  .compare-common-summary .ing-chip { background: var(--card-bg); }
+  .compare-common-summary .ing-chip.common { background: var(--card-bg); color: var(--accent-badge-text); }
 
   /* 자료실/제품목록/퀴즈 비밀번호 잠금 화면 — 퀴즈 카드와 동일한 톤으로 맞춰서 별도 디자인
      시스템처럼 보이지 않게 한다. */
@@ -1651,7 +1755,7 @@
            스크롤 밖에 고정) 탭이 늘어나도 잘리지 않고 옆으로 스와이프해서 보게 했다. 칩 줄에
            이미 쓰던 .chiprow-scroll(가로 스크롤 + 오른쪽 페이드 힌트)을 그대로 재사용한다. -->
       <div class="section-tabs-scroll chiprow-scroll" id="sectionTabsScroll">
-        <button class="section-tab active" data-view="faq">제품 문의 FAQ</button>
+        <button class="section-tab active" data-view="faq">제품 FAQ</button>
         <button class="section-tab" data-view="products">제품 목록</button>
         <button class="section-tab" data-view="ingredients">전성분</button>
         <button class="section-tab" data-view="archive">📁 자료실</button>
@@ -1803,14 +1907,28 @@
   <div class="view" id="view-ingredients">
     <div class="toolbar prod-toolbar">
       <div class="search-wrap">
-        <input type="text" class="searchbox" id="ingSearchInput" placeholder="제품명, 성분명, 품목코드로 검색... (예: 무기자차, 히알루론산)" autocomplete="off">
+        <input type="text" class="searchbox" id="ingSearchInput" placeholder="성분명으로 검색... (예: 히알루론산, 나이아신아마이드)" autocomplete="off">
+      </div>
+      <div class="mode-toggle prod-view-toggle" id="ingViewToggle">
+        <span class="mode-pill" aria-hidden="true"></span>
+        <button class="mode-btn view-mode-btn active" type="button" data-viewmode="grid" title="그리드로 보기" aria-label="그리드로 보기">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"></rect><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"></rect><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"></rect></svg>
+        </button>
+        <button class="mode-btn view-mode-btn" type="button" data-viewmode="list" title="리스트로 보기" aria-label="리스트로 보기">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="3.5" height="3.5" rx="0.8"></rect><line x1="10" y1="6.25" x2="21" y2="6.25"></line><rect x="3" y="10.25" width="3.5" height="3.5" rx="0.8"></rect><line x1="10" y1="12" x2="21" y2="12"></line><rect x="3" y="16" width="3.5" height="3.5" rx="0.8"></rect><line x1="10" y1="17.75" x2="21" y2="17.75"></line></svg>
+        </button>
+        <button class="mode-btn view-mode-btn" type="button" data-viewmode="compact" title="3열로 보기" aria-label="3열로 보기">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="5.5" height="18" rx="1.2"></rect><rect x="9.25" y="3" width="5.5" height="18" rx="1.2"></rect><rect x="17" y="3" width="5.5" height="18" rx="1.2"></rect></svg>
+        </button>
       </div>
     </div>
     <div class="prod-summary-row">
       <div class="summary-bar" id="ingSummaryBar"></div>
+      <button class="prod-view-cycle-btn" id="ingViewCycleBtn" type="button"></button>
     </div>
     <div id="ingContent"></div>
   </div>
+  <div class="ing-popover" id="ingPopover"></div>
 
   <div class="view" id="view-archive">
     <div class="protected-lock" id="lock-archive" style="display:none;"></div>
@@ -1907,21 +2025,30 @@
       </button>
     </div>
     <div class="compare-sub" id="compareSub"></div>
+    <div id="compareCommonSummary"></div>
     <div class="compare-cols" id="compareCols"></div>
   </div>
 </div>
 
 <footer class="site-footer">
   <div class="site-footer-inner">
-    <button id="darkModeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드 켜기/끄기" title="다크 모드 켜기/끄기">
-      <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
-      <span class="theme-toggle-label">다크 모드</span>
-      <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
-    </button>
+    <div class="footer-controls-row">
+      <button id="darkModeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드 켜기/끄기" title="다크 모드 켜기/끄기">
+        <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+        <span class="theme-toggle-label">다크 모드</span>
+        <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+      </button>
+      <div class="mode-toggle footer-fontsize-toggle" id="fontSizeToggle" role="group" aria-label="글자 크기 설정">
+        <span class="mode-pill" aria-hidden="true"></span>
+        <button class="mode-btn" type="button" data-fontsize="sm" aria-label="글자 작게">가</button>
+        <button class="mode-btn" type="button" data-fontsize="md" aria-label="글자 보통">가</button>
+        <button class="mode-btn" type="button" data-fontsize="lg" aria-label="글자 크게">가</button>
+      </div>
+    </div>
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-04 17:09 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 10:02 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
@@ -1947,6 +2074,25 @@ function applyTheme(mode) {
   const btn = document.getElementById('darkModeToggle');
   if (btn) btn.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
   if (typeof updateHeaderTheme === 'function') updateHeaderTheme();
+}
+
+// 모바일 글자 크기(작게/보통/크게) — 다크모드와 동일한 패턴으로 localStorage에 저장해두고
+// 로드 시 최대한 빨리(렌더 전에) data-font-size를 세팅해 깜빡임을 줄인다. 실제 스케일 적용은
+// CSS의 body { zoom } 쪽(모바일 폭에서만)에서 이뤄진다.
+(function initFontSize() {
+  let saved = null;
+  try { saved = localStorage.getItem('cms_font_size'); } catch (e) {}
+  document.documentElement.setAttribute('data-font-size', (saved === 'sm' || saved === 'lg') ? saved : 'md');
+})();
+function applyFontSize(size) {
+  document.documentElement.setAttribute('data-font-size', size);
+  try { localStorage.setItem('cms_font_size', size); } catch (e) {}
+  const toggle = document.getElementById('fontSizeToggle');
+  if (!toggle) return;
+  Array.from(toggle.querySelectorAll('.mode-btn')).forEach(function(btn) {
+    btn.classList.toggle('active', btn.getAttribute('data-fontsize') === size);
+  });
+  if (typeof updateModePill === 'function') updateModePill(toggle);
 }
 
 const BUILD_ID = '20260930153000';
@@ -2121,7 +2267,7 @@ const VIEW_HERO_COPY = {
   },
   ingredients: {
     eyebrow: 'CMS Lab · 전성분 정보',
-    title: '성분이 궁금할 땐,<br>검색하고 비교해보세요',
+    title: '성분이 궁금할 땐,<br>검색하고 비교해 보세요',
     sub: '제품별 전성분을 모아뒀어요.<br>최대 4개까지 골라서 성분을 나란히 비교할 수 있어요.'
   }
 };
@@ -2283,12 +2429,14 @@ async function attemptUnlock(password, view) {
   if (btn) { btn.disabled = true; btn.textContent = '확인 중...'; }
   try {
     const key = await deriveProtectedKey(password);
-    // PRODUCTS_ENC 복호화 성공 여부로 비밀번호가 맞는지 확인(AES-GCM의 인증 태그가
-    // 깨지면 decrypt()가 그 자체로 실패하므로 별도 해시 비교가 필요 없다)
-    const products = await decryptJSON(PRODUCTS_ENC, key);
+    // RESOURCES_ENC/QUIZ_QUESTIONS_ENC 복호화 성공 여부로 비밀번호가 맞는지 확인(AES-GCM의
+    // 인증 태그가 깨지면 decrypt()가 그 자체로 실패하므로 별도 해시 비교가 필요 없다).
+    // PRODUCTS는 2026-11-04에 비공개 해제되어 더 이상 암호화되지 않은 평문 const라서
+    // (PRODUCTS_ENC 자체가 존재하지 않음) 여기서 복호화/재할당하지 않는다 — 예전엔 이 줄이
+    // 존재하지 않는 PRODUCTS_ENC를 참조해 ReferenceError로 항상 실패했었다(비밀번호를
+    // 맞게 입력해도 "비밀번호가 올바르지 않습니다"만 떴던 버그의 원인).
     const resources = await decryptJSON(RESOURCES_ENC, key);
     const quiz = await decryptJSON(QUIZ_QUESTIONS_ENC, key);
-    PRODUCTS = products;
     RESOURCES = resources;
     QUIZ_QUESTIONS = quiz;
     protectedKey = key;
@@ -2328,6 +2476,7 @@ let currentProdBrand = '';
 let prodSearchQuery = '';
 let ingSearchQuery = '';
 let ingExpanded = new Set(); // 전성분 전체보기를 펼친 카드들의 key(itemCode||name)
+let ingViewMode = 'grid'; // 전성분 탭 보기 형식(그리드/리스트/3열) — 제품목록의 prodViewMode와 동일한 개념
 const COMPARE_MAX = 4;
 let compareSet = new Set(); // 전성분 비교함에 담긴 제품 key(itemCode||name)
 let currentResCat = '';
@@ -2460,17 +2609,23 @@ function saveFaqFeedbackVotes() {
 }
 let faqFeedbackVotes = loadFaqFeedbackVotes(); // { [faqId]: 'up' | 'down' }
 
+// 아이폰 이모지(👍/👎) 그대로 쓰면 플랫폼마다 모양이 다르고 "클로드로 만든 느낌"이 난다는
+// 지적 반영 — 사이트 전체에서 이미 쓰고 있는 stroke 기반 라인 아이콘(viewBox 24x24,
+// stroke-width 2, round cap/join) 스타일로 통일한 단순 픽토그램으로 교체.
+const FAQ_FB_ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10.5v9.5H5a1.5 1.5 0 0 1-1.5-1.5v-6.5A1.5 1.5 0 0 1 5 10.5h3z"></path><path d="M8 10.5l3.6-6.8a1.8 1.8 0 0 1 2.9-.4c.5.5.7 1.3.5 2l-1 3.7h4.3a2 2 0 0 1 1.9 2.7l-2.1 6.2a2 2 0 0 1-1.9 1.6H8"></path></svg>';
+const FAQ_FB_ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5V4H5A1.5 1.5 0 0 0 3.5 5.5V12A1.5 1.5 0 0 0 5 13.5h3z"></path><path d="M8 13.5l3.6 6.8a1.8 1.8 0 0 0 2.9.4c.5-.5.7-1.3.5-2l-1-3.7h4.3a2 2 0 0 0 1.9-2.7l-2.1-6.2A2 2 0 0 0 16.2 4H8"></path></svg>';
+
 function faqFeedbackHtml(faqId) {
   const voted = faqId ? faqFeedbackVotes[faqId] : null;
   if (voted) {
     return '<div class="faq-feedback voted" data-faq-id="' + escapeHtml(faqId || '') + '">' +
-      '<span class="faq-fb-thanks">의견 감사해요! ' + (voted === 'up' ? '👍' : '👎') + '</span>' +
+      '<span class="faq-fb-thanks">의견 감사해요! <span class="faq-fb-icon">' + (voted === 'up' ? FAQ_FB_ICON_UP : FAQ_FB_ICON_DOWN) + '</span></span>' +
       '</div>';
   }
   return '<div class="faq-feedback" data-faq-id="' + escapeHtml(faqId || '') + '">' +
     '<span class="faq-fb-label">이 답변이 도움됐나요?</span>' +
-    '<button class="faq-fb-btn" type="button" data-vote="up">👍</button>' +
-    '<button class="faq-fb-btn" type="button" data-vote="down">👎</button>' +
+    '<button class="faq-fb-btn" type="button" data-vote="up" aria-label="도움이 됐어요">' + FAQ_FB_ICON_UP + '</button>' +
+    '<button class="faq-fb-btn" type="button" data-vote="down" aria-label="도움이 안 됐어요">' + FAQ_FB_ICON_DOWN + '</button>' +
     '</div>';
 }
 function wireFaqFeedbackButtons(root) {
@@ -2491,7 +2646,7 @@ function wireFaqFeedbackButtons(root) {
         if (vote === 'down') {
           renderFaqFeedbackReasonPrompt(wrap, faqId);
         } else {
-          wrap.innerHTML = '<span class="faq-fb-thanks">의견 감사해요! 👍</span>';
+          wrap.innerHTML = '<span class="faq-fb-thanks">의견 감사해요! <span class="faq-fb-icon">' + FAQ_FB_ICON_UP + '</span></span>';
         }
       });
     });
@@ -2512,7 +2667,7 @@ function renderFaqFeedbackReasonPrompt(wrap, faqId) {
     '</div>';
   const input = wrap.querySelector('.faq-fb-reason-input');
   const finish = function() {
-    wrap.innerHTML = '<span class="faq-fb-thanks">의견 감사해요! 👎</span>';
+    wrap.innerHTML = '<span class="faq-fb-thanks">의견 감사해요! <span class="faq-fb-icon">' + FAQ_FB_ICON_DOWN + '</span></span>';
   };
   wrap.querySelector('.faq-fb-reason-submit').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -3602,6 +3757,16 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '자료실 비밀번호(대외비) 입력 시 항상 "비밀번호가 올바르지 않습니다"로 뜨던 오류 수정 — 제품 목록 비공개 해제 후에도 내부적으로 존재하지 않는 데이터를 확인하려던 버그' },
+  { date: '2026-11-05', title: '전성분 탭 등에서 자료실로 이동 시 상단 안내문구가 이전 탭 문구에 그대로 남아있던 오류 수정' },
+  { date: '2026-11-05', title: '전성분 비교 모달 — 공통 성분 목록을 맨 위에 요약으로 먼저 표시, 모바일에서 칼럼이 가로로 눌리던 레이아웃을 세로로 보기 좋게 개선' },
+  { date: '2026-11-05', title: '모바일 글자 크기 설정(작게·보통·크게) 추가, 기본 모바일 폰트 크기 축소' },
+  { date: '2026-11-05', title: '제품 목록 요약줄이 모바일에서 두 줄로 꺾이던 문제 수정' },
+  { date: '2026-11-05', title: 'GNB 탭 "제품 문의 FAQ" → "제품 FAQ"로 축약, 제품 문의 FAQ 하단 👍/👎 이모지를 아이콘으로 교체, 브랜드별 보기 안내문구 삭제' },
+  { date: '2026-11-05', title: '전성분 비교에 기능별(보습·유분·장벽케어·자외선차단 등) 구성비 도넛차트 추가, 성분 클릭 시 역할 설명 표시' },
+  { date: '2026-11-05', title: '전성분 탭에 보기 형식(그리드·리스트·3열) 추가, 제품명 영역 클릭으로 전성분 펼치기 가능' },
+  { date: '2026-11-05', title: '전성분 표기에 쉼표가 포함된 성분(예: 1,2-헥산다이올)이 잘못 쪼개지던 비교 오류 수정' },
+  { date: '2026-11-04', title: '전성분 탭 신설 — 제품별 전성분 한눈에 보기 + 최대 4개까지 비교' },
   { date: '2026-11-04', title: '제품 목록 검색에 전성분(성분명) 검색 추가 — 제품명·품목코드·성분명 통합검색, 카테고리 전체에서 검색' },
   { date: '2026-11-04', title: '제품 목록 탭 비공개 해제 (자료실 · QUIZ만 비밀번호 유지)' },
   { date: '2026-11-04', title: '자료실 · 제품 목록 · QUIZ 탭에 비밀번호 보호 추가 (대외비 자료 암호화)' },
@@ -3705,7 +3870,11 @@ function renderSubtabs() {
   if (!protectedUnlocked && PROTECTED_VIEWS.indexOf(currentView) !== -1) {
     // 비밀번호 잠금 상태에서는 PRODUCTS/RESOURCES가 null이라 이 아래 분기들이 그 데이터를
     // 참조하다 바로 에러를 내므로, 서브탭 자체를 비워두고 끝낸다(잠금 화면에는 필요 없음).
+    // 다만 updateHeaderTheme()까지 건너뛰면 히어로 제목/부제가 "이전 탭" 문구에 그대로
+    // 멈춰 있는 버그가 생긴다(예: 전성분 탭에서 자료실로 넘어가면 잠겨 있는데도 헤더에
+    // 전성분 문구가 남아있었음) — 잠금 화면이어도 헤더 문구는 현재 탭 기준으로 갱신한다.
     if (row) row.innerHTML = '';
+    updateHeaderTheme();
     return;
   }
   if (currentView === 'faq') {
@@ -3715,9 +3884,9 @@ function renderSubtabs() {
         '<button class="mode-btn' + (faqMode === 'brand' ? ' active' : '') + '" data-mode="brand">브랜드별 보기</button>' +
         '<button class="mode-btn' + (faqMode === 'group' ? ' active' : '') + '" data-mode="group">제품군별 보기</button>' +
       '</div>';
-    const hint = faqMode === 'brand'
-      ? '브랜드를 선택해 해당 브랜드의 문의를 확인하세요.'
-      : '제품군(카테고리)을 선택하면 모든 브랜드의 관련 문의를 한번에 모아볼 수 있어요.';
+    // 브랜드별 보기 쪽 안내문구("브랜드를 선택해...")는 브랜드 아이콘이 이미 충분히
+    // 직관적이라 불필요하다는 지적으로 삭제 — 제품군별 보기 쪽은 그대로 유지.
+    const hint = faqMode === 'brand' ? '' : '제품군(카테고리)을 선택하면 모든 브랜드의 관련 문의를 한번에 모아볼 수 있어요.';
 
     let chipsHtml;
     if (faqMode === 'brand') {
@@ -3742,7 +3911,7 @@ function renderSubtabs() {
       }).join('');
     }
 
-    row.innerHTML = modeToggleHtml + '<div class="mode-hint">' + hint + '</div>' + '<div class="chiprow">' + chipsHtml + '</div>';
+    row.innerHTML = modeToggleHtml + (hint ? '<div class="mode-hint">' + hint + '</div>' : '') + '<div class="chiprow">' + chipsHtml + '</div>';
 
     Array.from(row.querySelectorAll('.mode-btn')).forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -4167,6 +4336,51 @@ document.getElementById('prodViewCycleBtn').addEventListener('click', function()
   updateAllModePills();
 });
 
+// 전성분 탭 보기 형식(그리드/리스트/3열) — 제품목록과 똑같은 구조("보기 형식도 제품목록
+// 탭이랑 동일하게 3가지로 해달라"는 요청)를 그대로 재사용한다. 썸네일 사진이 없는 텍스트
+// 카드라 "4열" 대신 "3열"로 라벨/아이콘만 다르게 뒀다.
+Array.from(document.querySelectorAll('#ingViewToggle .view-mode-btn')).forEach(function(btn) {
+  btn.classList.toggle('active', btn.getAttribute('data-viewmode') === ingViewMode);
+  btn.addEventListener('click', function() {
+    const mode = btn.getAttribute('data-viewmode');
+    if (mode === ingViewMode) return;
+    ingViewMode = mode;
+    Array.from(document.querySelectorAll('#ingViewToggle .view-mode-btn')).forEach(function(b) {
+      b.classList.toggle('active', b === btn);
+    });
+    renderIngContent();
+    updateAllModePills();
+    updateIngViewCycleBtn();
+  });
+});
+const ING_VIEW_MODE_LABELS = { grid: '그리드로 보기', list: '리스트로 보기', compact: '3열로 보기' };
+const ING_VIEW_MODE_ICONS = {
+  grid: PROD_VIEW_MODE_ICONS.grid,
+  list: PROD_VIEW_MODE_ICONS.list,
+  compact: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="3" width="5.5" height="18" rx="1.2"></rect><rect x="9.25" y="3" width="5.5" height="18" rx="1.2"></rect><rect x="17" y="3" width="5.5" height="18" rx="1.2"></rect></svg>'
+};
+function updateIngViewCycleBtn() {
+  const btn = document.getElementById('ingViewCycleBtn');
+  if (!btn) return;
+  btn.innerHTML = ING_VIEW_MODE_ICONS[ingViewMode] || ING_VIEW_MODE_ICONS.grid;
+  const nextMode = PROD_VIEW_MODE_ORDER[(PROD_VIEW_MODE_ORDER.indexOf(ingViewMode) + 1) % PROD_VIEW_MODE_ORDER.length];
+  const label = '보기 방식 전환 (누르면 ' + (ING_VIEW_MODE_LABELS[nextMode] || '') + ')';
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
+}
+updateIngViewCycleBtn();
+document.getElementById('ingViewCycleBtn').addEventListener('click', function() {
+  const idx = PROD_VIEW_MODE_ORDER.indexOf(ingViewMode);
+  const nextMode = PROD_VIEW_MODE_ORDER[(idx + 1) % PROD_VIEW_MODE_ORDER.length];
+  ingViewMode = nextMode;
+  Array.from(document.querySelectorAll('#ingViewToggle .view-mode-btn')).forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-viewmode') === nextMode);
+  });
+  updateIngViewCycleBtn();
+  renderIngContent();
+  updateAllModePills();
+});
+
 const BRAND_LABELS = { CFC: 'Cell Fusion C', SUS: '수이스킨', DMB: '더마블록', KTZ: '키즈토즈', RPR: '리페라' };
 // KTZ와 DMB는 자기 자사몰이 없다 — KTZ는 Cell Fusion C 자사몰에서, DMB는 다이소 전용 브랜드라
 // 다이소몰에서 판매되므로, 두 브랜드는 다른 브랜드들의 평범한 "자사몰 기준" 문구 대신 실제
@@ -4245,6 +4459,200 @@ function productIngredientExcerpt(p, normQuery) {
   return excerpt;
 }
 
+
+// --- 전성분 기능 분류 사전 ------------------------------------------------------------
+// "공통 성분 하이라이트만으론 비교해서 얻는 인사이트가 없다"는 피드백으로 추가한 기능.
+// 빈도 상위 350개 성분(전체 전성분 등장 횟수의 약 83%를 커버)을 9개 기능 카테고리로
+// 분류해뒀다 — 제품별 구성비를 도넛차트로 비교하고, 성분을 클릭하면 역할 설명이 뜬다.
+// 사전에 없는 성분(주로 등장 빈도가 낮은 추출물류)이나 분류가 애매했던 성분은 전부
+// 'other'(기타)로 둔다 — 틀리게 확신하는 것보다 모른다고 하는 게 낫다는 원칙.
+const ING_CATEGORY_META = {
+  hydration:    { label: '수분/보습',     color: '#3E7CB1' },
+  emollient:    { label: '유분/유연',     color: '#E09F3E' },
+  barrier:      { label: '장벽케어/진정', color: '#4E9F6E' },
+  uv:           { label: '자외선차단',    color: '#8B5FBF' },
+  texture:      { label: '점증/유화',     color: '#A47148' },
+  preservative: { label: '방부/안정화',   color: '#6E8B8C' },
+  active:       { label: '기능성 액티브', color: '#2A9D8F' },
+  fragrance:    { label: '향료/색소',     color: '#C9A227' },
+  other:        { label: '기타',          color: '#9b9b9b' }
+};
+const INGREDIENT_FUNCTIONS = {"정제수":{"cat":"hydration","desc":"피부에 수분을 공급하는 기본 베이스 용매예요"},"1,2-헥산다이올":{"cat":"preservative","desc":"유해균 증식을 막아주는 방부 보조 성분이에요"},"부틸렌글라이콜":{"cat":"hydration","desc":"수분을 끌어와 촉촉한 사용감을 더해요"},"글리세린":{"cat":"hydration","desc":"피부 속 수분을 붙잡아 촉촉하게 유지해요"},"에틸헥실글리세린":{"cat":"preservative","desc":"방부력을 높이고 가벼운 사용감을 더해요"},"아데노신":{"cat":"active","desc":"주름 개선에 도움을 주는 기능성 성분이에요"},"나이아신아마이드":{"cat":"active","desc":"피부 톤을 맑게 가꿔주는 미백 기능성 성분이에요"},"향료":{"cat":"fragrance","desc":"제품에 향을 더해주는 성분이에요"},"토코페롤":{"cat":"active","desc":"산화를 막아주는 항산화 성분(비타민E)이에요"},"하이드로제네이티드레시틴":{"cat":"emollient","desc":"피부를 매끄럽게 코팅해주는 유연 성분이에요"},"카프릴릴글라이콜":{"cat":"preservative","desc":"방부 효과를 더해주는 보조 성분이에요"},"프로판다이올":{"cat":"hydration","desc":"촉촉한 사용감을 주는 보습 용매예요"},"소듐하이알루로네이트":{"cat":"hydration","desc":"피부에 수분을 채워주는 저분자 히알루론산이에요"},"다이소듐이디티에이":{"cat":"preservative","desc":"금속이온을 잡아 제품을 안정시키는 킬레이트제예요"},"세라마이드엔피":{"cat":"barrier","desc":"피부 장벽을 채워주는 세라마이드 성분이에요"},"다이프로필렌글라이콜":{"cat":"hydration","desc":"다른 성분을 녹이고 촉촉함을 더하는 보습 용매예요"},"카프릴릭/카프릭트라이글리세라이드":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일 성분이에요"},"펜틸렌글라이콜":{"cat":"preservative","desc":"방부력을 높이고 보습도 더해주는 성분이에요"},"판테놀":{"cat":"barrier","desc":"피부를 진정시키고 장벽을 튼튼하게 해줘요"},"하이드록시아세토페논":{"cat":"preservative","desc":"방부 보조와 성분 안정화를 도와요"},"트로메타민":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"잔탄검":{"cat":"texture","desc":"점성을 더해 제형을 안정적으로 잡아줘요"},"스테아릭애씨드":{"cat":"emollient","desc":"피부를 유연하게 코팅해주는 지방산이에요"},"시트릭애씨드":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"하이드롤라이즈드하이알루로닉애씨드":{"cat":"hydration","desc":"작은 분자로 쪼개 흡수가 빠른 히알루론산이에요"},"하이알루로닉애씨드":{"cat":"hydration","desc":"피부 표면에 수분막을 만들어주는 보습 성분이에요"},"알지닌":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"병풀추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 대표 진정 성분이에요"},"알란토인":{"cat":"barrier","desc":"자극받은 피부를 진정시켜줘요"},"다이부틸아디페이트":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"카보머":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"부틸옥틸살리실레이트":{"cat":"emollient","desc":"사용감을 가볍게 해주는 유연 성분이에요"},"글리세릴카프릴레이트":{"cat":"preservative","desc":"방부력을 보조하면서 피부를 유연하게 해줘요"},"메틸다이아이소프로필프로피온아마이드":{"cat":"active","desc":"시원한 청량감을 주는 쿨링 성분이에요"},"소듐하이알루로네이트크로스폴리머":{"cat":"hydration","desc":"피부 표면에 촘촘한 수분막을 만들어줘요"},"에칠헥실트리아존":{"cat":"uv","desc":"자외선(UVB)을 흡수해 차단해주는 성분이에요"},"콜레스테롤":{"cat":"barrier","desc":"피부 장벽을 이루는 지질 성분이에요"},"베타인":{"cat":"hydration","desc":"수분을 붙잡아주는 천연 보습 성분이에요"},"암모늄아크릴로일다이메틸타우레이트/브이피코폴리머":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"디에칠아미노하이드록시벤조일헥실벤조에이트":{"cat":"uv","desc":"자외선(UVA)을 흡수해 차단해주는 성분이에요"},"비스-에칠헥실옥시페놀메톡시페닐트리아진":{"cat":"uv","desc":"자외선(UVA/UVB)을 폭넓게 막아주는 차단 성분이에요"},"트라이에톡시카프릴릴실레인":{"cat":"texture","desc":"분말 입자를 코팅해 발림성을 매끄럽게 해줘요"},"메틸프로판다이올":{"cat":"hydration","desc":"촉촉한 사용감을 더해주는 보습 용매예요"},"팔미틱애씨드":{"cat":"emollient","desc":"피부를 유연하게 코팅해주는 지방산이에요"},"글리세릴스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"소듐시트레이트":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"트레할로오스":{"cat":"hydration","desc":"수분을 오래 붙잡아주는 보습 성분이에요"},"폴리글리세릴-10라우레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"폴리메틸실세스퀴옥세인":{"cat":"texture","desc":"보송한 사용감을 주는 파우더 질감 성분이에요"},"폴리하이드록시스테아릭애씨드":{"cat":"texture","desc":"오일 성분을 고르게 분산시켜주는 성분이에요"},"실리카":{"cat":"texture","desc":"피지를 흡수해 보송한 마무리감을 줘요"},"효모발효여과물":{"cat":"active","desc":"영양 성분이 풍부한 발효 유래 기능성 성분이에요"},"소듐폴리아크릴레이트":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"베타-글루칸":{"cat":"barrier","desc":"피부를 진정시키고 장벽을 도와주는 성분이에요"},"아세틸헥사펩타이드-8":{"cat":"active","desc":"표정 주름 개선에 도움을 주는 펩타이드예요"},"하이드록시프로필트라이모늄하이알루로네이트":{"cat":"hydration","desc":"피부에 오래 밀착되는 히알루론산 유도체예요"},"아크릴레이트/C10-30알킬아크릴레이트크로스폴리머":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"메틸메타크릴레이트크로스폴리머":{"cat":"texture","desc":"모공과 잔주름을 흐려 보이게 하는 파우더 성분이에요"},"스쿠알란":{"cat":"emollient","desc":"피부에 유분막을 더해 매끄럽게 해줘요"},"다발방패버섯추출물":{"cat":"barrier","desc":"피부 장벽 개선에 도움을 주는 버섯 유래 성분이에요"},"글라이신":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"글루타믹애씨드":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"사카라이드아이소머레이트":{"cat":"hydration","desc":"피부 자체 보습 성분과 유사한 당 유래 보습제예요"},"폴리글리세릴-4다이아이소스테아레이트/폴리하이드록시스테아레이트/세바케이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"마그네슘설페이트":{"cat":"texture","desc":"제형의 점도를 조절해주는 보조 성분이에요"},"메틸트라이메티콘":{"cat":"emollient","desc":"가볍게 발리는 실리콘 유연 성분이에요"},"셀룰로오스검":{"cat":"texture","desc":"점성을 더해 제형을 안정적으로 잡아줘요"},"세틸에틸헥사노에이트":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"다이포타슘글리시리제이트":{"cat":"barrier","desc":"감초 유래의 진정 성분이에요"},"세테아릴알코올":{"cat":"texture","desc":"제형을 걸쭉하게 잡아주는 유화 보조제예요"},"글루코노락톤":{"cat":"active","desc":"각질 결을 부드럽게 정돈해주는 저자극 각질케어 성분이에요"},"글리세레스-26":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"덱스트린":{"cat":"texture","desc":"점성과 사용감을 잡아주는 전분 유래 성분이에요"},"티타늄디옥사이드":{"cat":"uv","desc":"자외선을 물리적으로 반사·차단해주는 성분이에요"},"다이스테아다이모늄헥토라이트":{"cat":"texture","desc":"오일 성분을 젤 형태로 잡아주는 점증제예요"},"아이소도데케인":{"cat":"emollient","desc":"가볍게 날아가는 휘발성 유연 성분이에요"},"포타슘세틸포스페이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"소듐폴리아크릴로일다이메틸타우레이트":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"알루미늄하이드록사이드":{"cat":"texture","desc":"안료를 코팅해 제형을 안정시키는 보조 성분이에요"},"소듐클로라이드":{"cat":"texture","desc":"제형의 점도를 조절해주는 보조 성분이에요"},"무화과추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 식물 추출물이에요"},"리모넨":{"cat":"fragrance","desc":"감귤류 향을 내는 향 성분이에요"},"수크로오스스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"콜레스테릴마카다미에이트":{"cat":"barrier","desc":"피부 지질과 닮은 장벽 보호 성분이에요"},"하이드롤라이즈드루핀단백질":{"cat":"active","desc":"피부에 영양을 더해주는 식물 단백질 유래 성분이에요"},"코코-카프릴레이트/카프레이트":{"cat":"emollient","desc":"가볍게 발리는 야자유 유래 유연 성분이에요"},"소듐아세틸레이티드하이알루로네이트":{"cat":"hydration","desc":"피부에 오래 머무르는 히알루론산 유도체예요"},"아스코빅애씨드":{"cat":"active","desc":"피부 톤을 맑게 가꿔주는 비타민C예요"},"다이카프릴릴카보네이트":{"cat":"emollient","desc":"산뜻하게 발리는 유연 성분이에요"},"테레프탈릴리덴디캠퍼설포닉애씨드":{"cat":"uv","desc":"자외선(UVA)을 흡수해 차단해주는 성분이에요"},"베헤닐알코올":{"cat":"texture","desc":"제형을 걸쭉하게 잡아주는 유화 보조제예요"},"다이메티콘":{"cat":"emollient","desc":"피부 표면을 매끄럽게 코팅해주는 실리콘 성분이에요"},"토코페릴아세테이트":{"cat":"active","desc":"산화를 막아주는 항산화 성분(비타민E 유도체)이에요"},"비닐다이메티콘":{"cat":"texture","desc":"쫀득한 사용감을 주는 실리콘 성분이에요"},"구아이아줄렌":{"cat":"barrier","desc":"피부를 진정시켜주는 카모마일 유래 성분이에요"},"엑토인":{"cat":"barrier","desc":"피부 세포를 보호하고 진정시켜주는 성분이에요"},"글루코오스":{"cat":"hydration","desc":"수분과 영양을 더해주는 당 성분이에요"},"소듐파이테이트":{"cat":"preservative","desc":"금속이온을 잡아 제품을 안정시키는 킬레이트제예요"},"사이클로헥사실록세인":{"cat":"emollient","desc":"가볍게 날아가는 휘발성 실리콘 성분이에요"},"프로필헵틸카프릴레이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"아이소노닐아이소노나노에이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"다이메티콘/비닐다이메티콘크로스폴리머":{"cat":"texture","desc":"쫀득한 사용감을 주는 실리콘 겔 성분이에요"},"하이드록시에틸아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"트라이소듐에틸렌다이아민다이석시네이트":{"cat":"preservative","desc":"금속이온을 잡아 제품을 안정시키는 킬레이트제예요"},"폴리글리세릴-3메틸글루코오스다이스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"마이크로크리스탈린셀룰로오스":{"cat":"texture","desc":"제형의 질감과 점도를 잡아주는 보조 성분이에요"},"라우릴폴리글리세릴-3폴리다이메틸실록시에틸다이메티콘":{"cat":"texture","desc":"수분과 유분을 섞어주는 실리콘 유화제예요"},"카프릴릴메티콘":{"cat":"emollient","desc":"가볍게 발리는 실리콘 유연 성분이에요"},"당느릅나무뿌리추출물":{"cat":"barrier","desc":"피부를 진정시키고 보호막을 더해주는 추출물이에요"},"에틸헥실팔미테이트":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"하이드롤라이즈드소듐하이알루로네이트":{"cat":"hydration","desc":"작은 분자로 쪼개 흡수가 빠른 히알루론산이에요"},"마데카소사이드":{"cat":"barrier","desc":"피부 진정과 재생에 도움을 주는 병풀 유래 성분이에요"},"폴리아크릴레이트크로스폴리머-6":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"하이드롤라이즈드콜라겐":{"cat":"active","desc":"탄력 케어에 도움을 주는 콜라겐 유래 성분이에요"},"호호바씨오일":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일이에요"},"옥틸도데칸올":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"암모늄폴리아크릴로일다이메틸타우레이트":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"폴리글리세릴-2다이폴리하이드록시스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"글루타티온":{"cat":"active","desc":"피부 톤 개선에 도움을 주는 항산화 성분이에요"},"000ppm)":{"cat":"other","desc":"표기 오류로 보이는 항목이에요(수치 표기 일부)"},"카페인":{"cat":"active","desc":"피부 결 정돈에 도움을 주는 기능성 성분이에요"},"피토스핑고신":{"cat":"barrier","desc":"세라마이드 합성을 돕는 피부 장벽 성분이에요"},"카퍼트라이펩타이드-1":{"cat":"active","desc":"탄력 케어로 잘 알려진 구리 펩타이드예요"},"팔미토일펜타펩타이드-4":{"cat":"active","desc":"주름 개선에 도움을 주는 펩타이드예요"},"귀리커넬추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 귀리 유래 성분이에요"},"옥틸도데세스-16":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"프랑스해안송껍질추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"레몬밤잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 허브 추출물이에요"},"로즈마리닉애씨드":{"cat":"active","desc":"항산화·진정 효과가 있는 산 성분이에요"},"시어버터":{"cat":"emollient","desc":"피부를 부드럽게 감싸주는 식물성 버터예요"},"황련뿌리추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 한방 유래 추출물이에요"},"징크옥사이드":{"cat":"uv","desc":"자외선을 물리적으로 반사·차단해주는 성분이에요"},"폴리글리세릴-3폴리다이메틸실록시에틸다이메티콘":{"cat":"texture","desc":"수분과 유분을 섞어주는 실리콘 유화제예요"},"트라이메틸실록시실리케이트":{"cat":"texture","desc":"밀착력과 지속력을 더해주는 실리콘 성분이에요"},"해바라기씨오일":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일이에요"},"벤질글라이콜":{"cat":"preservative","desc":"방부력을 보조해주는 성분이에요"},"[색상별 상이 - 공통 전성분 포함":{"cat":"other","desc":"표기 형식상 분리된 안내 문구 조각이에요"},"공식 상품페이지 참고] 정제수":{"cat":"other","desc":"표기 형식상 안내 문구와 합쳐진 항목이에요"},"티타늄디옥사이드 (CI 77891)":{"cat":"uv","desc":"자외선을 물리적으로 반사·차단해주는 성분이에요"},"폴리글리세릴-4아이소스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"하이드록시프로필메틸셀룰로오스스테아록시에터":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"3-O-에틸아스코빅애씨드":{"cat":"active","desc":"피부 톤을 맑게 가꿔주는 비타민C 유도체예요"},"소듐스테아로일글루타메이트":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"스핑고모나스발효추출물":{"cat":"active","desc":"발효 유래의 영양·보습 보조 성분이에요"},"녹차추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"약모밀추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 어성초 추출물이에요"},"말토덱스트린":{"cat":"texture","desc":"점성과 사용감을 잡아주는 전분 유래 성분이에요"},"다시마추출물":{"cat":"hydration","desc":"미네랄과 수분을 더해주는 해조류 추출물이에요"},"알로에베라잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 대표적인 추출물이에요"},"참마뿌리추출물":{"cat":"barrier","desc":"피부를 진정시키고 촉촉하게 해주는 추출물이에요"},"제비꽃꽃추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 꽃 추출물이에요"},"포도추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"포타슘하이알루로네이트":{"cat":"hydration","desc":"피부에 수분을 채워주는 히알루론산염이에요"},"카프릴릴/카프릴글루코사이드":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"이노시톨":{"cat":"barrier","desc":"피부 컨디셔닝에 도움을 주는 성분이에요"},"하이드롤라이즈드치자추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 치자 유래 추출물이에요"},"병풀잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 병풀 유래 성분이에요"},"아시아티코사이드":{"cat":"barrier","desc":"피부 장벽 회복에 도움을 주는 병풀 유래 성분이에요"},"마데카식애씨드":{"cat":"barrier","desc":"피부 진정과 재생에 도움을 주는 병풀 유래 성분이에요"},"아시아틱애씨드":{"cat":"barrier","desc":"피부 진정과 재생에 도움을 주는 병풀 유래 성분이에요"},"피토스테롤":{"cat":"barrier","desc":"피부 장벽을 지지해주는 식물성 지질 성분이에요"},"피버퓨추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 허브 추출물이에요"},"울금뿌리추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 강황(울금) 추출물이에요"},"솔비탄올리베이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 올리브 유래 유화제예요"},"피이지-100스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"글리세릴글루코사이드":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 더해주는 보습 성분이에요"},"다이글리세린":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 더해주는 보습 성분이에요"},"폴리실리콘-15":{"cat":"uv","desc":"자외선(UVB)을 흡수해 차단해주는 성분이에요"},"폴리글리세릴-10미리스테이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"아이소프로필티타늄트라이아이소스테아레이트":{"cat":"texture","desc":"자외선 차단 성분을 고르게 분산시켜주는 보조 성분이에요"},"황색산화철 (CI 77492)":{"cat":"fragrance","desc":"제품에 자연스러운 색을 더해주는 색소예요"},"변성알코올":{"cat":"other","desc":"빠른 건조감과 산뜻한 사용감을 더해주는 용매예요"},"다이메티콘올":{"cat":"emollient","desc":"피부 표면을 매끄럽게 코팅해주는 실리콘 성분이에요"},"폴리C10-30알킬아크릴레이트":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"포타슘클로라이드":{"cat":"texture","desc":"제형의 점도를 조절해주는 보조 성분이에요"},"베르가모트오일":{"cat":"fragrance","desc":"상큼한 향을 내는 감귤계 오일이에요"},"리날룰":{"cat":"fragrance","desc":"꽃향을 내는 향 성분이에요"},"오조케라이트":{"cat":"texture","desc":"제형에 단단한 질감을 더해주는 왁스 성분이에요"},"하이드로제네이티드폴리아이소부텐":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"트라이에틸헥사노인":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"다이페닐실록시페닐트라이메티콘":{"cat":"emollient","desc":"매끄러운 사용감을 주는 실리콘 유연 성분이에요"},"왕귤껍질오일":{"cat":"fragrance","desc":"상큼한 향을 내는 감귤계 오일이에요"},"소듐아크릴레이트/소듐아크릴로일다이메틸타우레이트코폴리머":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"솔비탄올리에이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"마트리카리아추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 카모마일 계열 추출물이에요"},"인도멀구슬나무꽃추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 님 유래 추출물이에요"},"인도멀구슬나무잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 님 유래 추출물이에요"},"홀리바질잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 허브 추출물이에요"},"참산호말추출물":{"cat":"barrier","desc":"미네랄이 풍부한 해조류 유래 진정 성분이에요"},"병풀꽃/잎/줄기추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 병풀 유래 성분이에요"},"병풀뿌리추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 병풀 유래 성분이에요"},"세테아릴올리베이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 올리브 유래 유화제예요"},"카카오추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"글리세릴아크릴레이트/아크릴릭애씨드코폴리머":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"아스파틱애씨드":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"석시닉애씨드":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"세린":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"알라닌":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"카르노신":{"cat":"active","desc":"항산화 효과로 잘 알려진 아미노산 성분이에요"},"적색산화철 (CI 77491)":{"cat":"fragrance","desc":"제품에 자연스러운 색을 더해주는 색소예요"},"옥토크릴렌":{"cat":"uv","desc":"자외선(UVB)을 흡수해 차단해주는 성분이에요"},"에리스리톨":{"cat":"hydration","desc":"수분을 더해주고 산뜻한 느낌을 주는 당 성분이에요"},"폴스애플민트잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 민트 계열 추출물이에요"},"타임잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 허브 추출물이에요"},"하이드록시에틸우레아":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 유지해주는 보습 성분이에요"},"C12-15알킬벤조에이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"알루미나":{"cat":"texture","desc":"피지를 흡수해 보송한 마무리감을 줘요"},"황색산화철":{"cat":"fragrance","desc":"제품에 자연스러운 색을 더해주는 색소예요"},"적색산화철":{"cat":"fragrance","desc":"제품에 자연스러운 색을 더해주는 색소예요"},"제라니올":{"cat":"fragrance","desc":"꽃향을 내는 향 성분이에요"},"비닐다이메티콘/메티콘실세스퀴옥세인크로스폴리머":{"cat":"texture","desc":"쫀득한 사용감을 주는 실리콘 겔 성분이에요"},"프룩토올리고사카라이드":{"cat":"hydration","desc":"피부를 진정시키고 촉촉하게 해주는 당 성분이에요"},"펜타에리스리틸테트라-다이-t-부틸하이드록시하이드로신나메이트":{"cat":"preservative","desc":"오일 성분의 산화를 막아 제품을 안정시켜줘요"},"네오펜틸글라이콜다이에틸헥사노에이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"쌀겨오일":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일이에요"},"스테아랄코늄헥토라이트":{"cat":"texture","desc":"오일 성분을 단단한 질감으로 잡아주는 성분이에요"},"세라마이드에이피":{"cat":"barrier","desc":"피부 장벽을 채워주는 세라마이드 성분이에요"},"트라이펩타이드-1":{"cat":"active","desc":"탄력 케어에 도움을 주는 펩타이드예요"},"아티초크잎추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"폴리쿼터늄-51":{"cat":"hydration","desc":"눈가 등 예민한 부위에 수분을 더해주는 성분이에요"},"로즈마리잎오일":{"cat":"active","desc":"항산화·항균 효과로 잘 알려진 허브 오일이에요"},"폴리아이소부텐":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"트라이데세스-6":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"하이드롤라이즈드맥아추출물":{"cat":"barrier","desc":"피부에 영양과 진정 효과를 더해주는 추출물이에요"},"하이드롤라이즈드삼색제비꽃추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 꽃 추출물이에요"},"하이드록시에틸셀룰로오스":{"cat":"texture","desc":"점성을 더해 제형을 안정적으로 잡아줘요"},"메틸글루세스-20":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 더해주는 보습 성분이에요"},"스테아릴알코올":{"cat":"texture","desc":"제형을 걸쭉하게 잡아주는 유화 보조제예요"},"효모발효물":{"cat":"active","desc":"영양 성분이 풍부한 발효 유래 기능성 성분이에요"},"솔비탄아이소스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"하이드로제네이티드폴리데센":{"cat":"emollient","desc":"매끄러운 사용감을 주는 유연 성분이에요"},"하이드로클로릭애씨드":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"자일리톨":{"cat":"hydration","desc":"수분을 더해주는 당 성분이에요"},"빙하수":{"cat":"hydration","desc":"미네랄이 풍부한 수분 베이스 성분이에요"},"폴리글리세릴-10올리에이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"구기자추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"육두구추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 향신료 유래 추출물이에요"},"수크로오스다이스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"솔비톨":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 더해주는 보습 성분이에요"},"살리실릭애씨드":{"cat":"active","desc":"모공·각질 케어에 도움을 주는 기능성 성분(BHA)이에요"},"라이신":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"프롤린":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"트레오닌":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"소듐코코일이세티오네이트":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"포타슘코코일글리시네이트":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"코코-글루코사이드":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"칼슘알루미늄보로실리케이트":{"cat":"texture","desc":"은은한 윤기를 더해주는 펄 성분이에요"},"다이아이소프로필세바케이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"라우로일라이신":{"cat":"texture","desc":"보송한 마무리감을 더해주는 보조 성분이에요"},"비사보롤":{"cat":"barrier","desc":"카모마일 유래의 진정 성분이에요"},"폴리에터-1":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"파스향나무잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 식물 추출물이에요"},"피브이엠/엠에이코폴리머":{"cat":"texture","desc":"필름막을 형성해 밀착력을 더해주는 성분이에요"},"t-부틸알코올":{"cat":"other","desc":"제형의 안정성을 돕는 용매 성분이에요"},"시트로넬올":{"cat":"fragrance","desc":"허브 향을 내는 향 성분이에요"},"부틸렌글라이콜다이카프릴레이트/다이카프레이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"오렌지껍질오일":{"cat":"fragrance","desc":"상큼한 향을 내는 감귤계 오일이에요"},"라벤더오일":{"cat":"fragrance","desc":"은은한 향을 내는 허브 오일이에요"},"풀루란":{"cat":"texture","desc":"필름막을 형성해 밀착력을 더해주는 성분이에요"},"폴리글리세릴-3다이스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"글리세릴스테아레이트시트레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"아스코빌글루코사이드":{"cat":"active","desc":"피부 톤을 맑게 가꿔주는 비타민C 유도체예요"},"합성왁스":{"cat":"texture","desc":"제형에 단단한 질감을 더해주는 왁스 성분이에요"},"폴리글리세릴-5폴리리시놀리에이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"석류추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"징크피씨에이":{"cat":"active","desc":"피지·트러블 케어에 도움을 주는 기능성 성분이에요"},"잇꽃꽃추출물":{"cat":"barrier","desc":"피부에 영양과 보습을 더해주는 꽃 추출물이에요"},"커피콩추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"달맞이꽃오일":{"cat":"emollient","desc":"필수 지방산이 풍부한 식물성 오일이에요"},"페닐트라이메티콘":{"cat":"emollient","desc":"매끄러운 사용감을 주는 실리콘 유연 성분이에요"},"프로필렌카보네이트":{"cat":"texture","desc":"다른 성분을 고르게 녹여주는 용매 성분이에요"},"세라마이드엔에스":{"cat":"barrier","desc":"피부 장벽을 채워주는 세라마이드 성분이에요"},"세라마이드에이에스":{"cat":"barrier","desc":"피부 장벽을 채워주는 세라마이드 성분이에요"},"세라마이드이오피":{"cat":"barrier","desc":"피부 장벽을 채워주는 세라마이드 성분이에요"},"흑색산화철 (※ 색상에 따라 안료 구성이 다를 수 있음)":{"cat":"fragrance","desc":"제품에 자연스러운 색을 더해주는 색소예요"},"포도씨오일":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일이에요"},"미리스틱애씨드":{"cat":"emollient","desc":"피부를 유연하게 코팅해주는 지방산이에요"},"리놀레닉애씨드":{"cat":"barrier","desc":"피부 장벽에 도움을 주는 필수 지방산이에요"},"사이클로펜타실록세인":{"cat":"emollient","desc":"가볍게 날아가는 휘발성 실리콘 성분이에요"},"옥수수커넬추출물":{"cat":"barrier","desc":"피부를 진정시키고 촉촉하게 해주는 추출물이에요"},"프룩탄":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 더해주는 당 성분이에요"},"데실글루코사이드":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"백미꽃추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 꽃 추출물이에요"},"접시꽃추출물":{"cat":"barrier","desc":"피부를 진정시키고 촉촉하게 해주는 꽃 추출물이에요"},"글리세릴폴리메타크릴레이트":{"cat":"texture","desc":"필름막을 형성해 밀착력을 더해주는 성분이에요"},"세틸알코올":{"cat":"texture","desc":"제형을 걸쭉하게 잡아주는 유화 보조제예요"},"피토스테릴/이소스테아릴/세틸/스테아릴/베헤닐다이머디리놀리에이트":{"cat":"emollient","desc":"풍부한 유분막을 더해주는 유연 성분이에요"},"콜라겐추출물":{"cat":"active","desc":"탄력 케어에 도움을 주는 콜라겐 유래 성분이에요"},"수용성콜라겐":{"cat":"active","desc":"탄력 케어에 도움을 주는 콜라겐 유래 성분이에요"},"다이카프릴릴에터":{"cat":"emollient","desc":"산뜻하게 발리는 유연 성분이에요"},"다마스크장미꽃수":{"cat":"fragrance","desc":"은은한 장미 향을 내는 플로럴 워터예요"},"다마스크장미꽃오일":{"cat":"fragrance","desc":"은은한 장미 향을 내는 오일이에요"},"동백나무꽃추출물":{"cat":"barrier","desc":"피부에 영양과 보습을 더해주는 꽃 추출물이에요"},"마카다미아씨오일":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일이에요"},"아세틸테트라펩타이드-5":{"cat":"active","desc":"눈가 케어로 잘 알려진 펩타이드예요"},"유채스테롤":{"cat":"barrier","desc":"피부 장벽을 지지해주는 식물성 지질 성분이에요"},"알루미늄/마그네슘하이드록사이드스테아레이트":{"cat":"texture","desc":"안료를 코팅해 발림성을 매끄럽게 해줘요"},"폴리솔베이트60":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"클로렐라 불가리스추출물":{"cat":"active","desc":"영양 성분이 풍부한 조류 유래 추출물이에요"},"프룩토오스":{"cat":"hydration","desc":"수분을 더해주는 당 성분이에요"},"페룰릭애씨드":{"cat":"active","desc":"항산화 효과로 잘 알려진 성분이에요"},"폴리글리세린-3":{"cat":"hydration","desc":"수분을 끌어와 촉촉함을 더해주는 보습 성분이에요"},"팔미토일트라이펩타이드-5":{"cat":"active","desc":"탄력 케어에 도움을 주는 펩타이드예요"},"아이리쉬모스추출물":{"cat":"barrier","desc":"피부를 진정시키고 촉촉하게 해주는 해조류 추출물이에요"},"다이에톡시에틸석시네이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"하이드롤라이즈드글라이코사미노글리칸":{"cat":"hydration","desc":"히알루론산 계열의 보습 성분이에요"},"글리세레스-25피씨에이아이소스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"카프릴로일살리실릭애씨드":{"cat":"active","desc":"모공·각질 케어에 도움을 주는 기능성 성분이에요"},"치자추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 치자 유래 추출물이에요"},"캐롭검":{"cat":"texture","desc":"점성을 더해 제형을 안정적으로 잡아줘요"},"아이리쉬모스":{"cat":"barrier","desc":"피부를 진정시키고 촉촉하게 해주는 해조류 성분이에요"},"알진":{"cat":"texture","desc":"필름막을 형성해주는 해조류 유래 성분이에요"},"수크로오스":{"cat":"hydration","desc":"수분을 더해주는 당 성분이에요"},"포타슘하이드록사이드":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"파파인":{"cat":"active","desc":"각질 케어에 도움을 주는 효소 성분이에요"},"소듐메틸코코일타우레이트":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"폴리글리세릴-4카프레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"소듐코코일글루타메이트":{"cat":"texture","desc":"순한 세정·유화 보조 성분이에요"},"올레익애씨드":{"cat":"emollient","desc":"피부를 유연하게 코팅해주는 지방산이에요"},"히스티딘":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"메티오닌":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"타이로신":{"cat":"barrier","desc":"피부 자체 보습인자 역할을 하는 아미노산이에요"},"올리브오일":{"cat":"emollient","desc":"피부를 부드럽게 코팅해주는 식물성 오일이에요"},"폴리글리세릴-10스테아레이트":{"cat":"texture","desc":"수분과 유분을 섞어주는 유화제예요"},"토마토추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"로즈마리잎수":{"cat":"fragrance","desc":"은은한 허브 향을 내는 플로럴 워터예요"},"흰목이버섯추출물":{"cat":"hydration","desc":"식물성 히알루론산으로 잘 알려진 보습 성분이에요"},"스테아릴헵타노에이트":{"cat":"emollient","desc":"가볍게 발리는 유연 성분이에요"},"소듐바이카보네이트":{"cat":"other","desc":"제품의 산도(pH)를 맞춰주는 조절제예요"},"칼슘클로라이드":{"cat":"texture","desc":"제형의 점도를 조절해주는 보조 성분이에요"},"에난티아 클로란타껍질추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 식물 추출물이에요"},"센티드제라늄꽃오일":{"cat":"fragrance","desc":"은은한 꽃향을 내는 오일이에요"},"소듐아크릴레이트크로스폴리머-2":{"cat":"texture","desc":"제형의 점도를 잡아주는 점증제예요"},"올레아놀릭애씨드":{"cat":"barrier","desc":"피부를 진정시켜주는 식물성 성분이에요"},"폴리에틸렌":{"cat":"texture","desc":"매끄러운 마무리감을 더해주는 보조 성분이에요"},"호모살레이트":{"cat":"uv","desc":"자외선(UVB)을 흡수해 차단해주는 성분이에요"},"에칠헥실살리실레이트":{"cat":"uv","desc":"자외선(UVB)을 흡수해 차단해주는 성분이에요"},"사카라이드하이드롤리세이트":{"cat":"hydration","desc":"수분을 더해주는 당 유래 보습 성분이에요"},"쇠비름추출물":{"cat":"barrier","desc":"피부를 진정시키고 촉촉하게 해주는 추출물이에요"},"알파-알부틴":{"cat":"active","desc":"피부 톤을 맑게 가꿔주는 미백 기능성 성분이에요"},"아스코빌테트라이소팔미테이트":{"cat":"active","desc":"피부 톤을 맑게 가꿔주는 비타민C 유도체예요"},"탄닉애씨드":{"cat":"active","desc":"항산화·수렴 효과로 알려진 성분이에요"},"드로메트리졸트리실록산":{"cat":"uv","desc":"자외선(UVA)을 흡수해 차단해주는 성분이에요"},"알파-비사보롤":{"cat":"barrier","desc":"카모마일 유래의 진정 성분이에요"},"지치뿌리추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 한방 유래 추출물이에요"},"매듭풀추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 식물 추출물이에요"},"레드신코나나무껍질추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"},"마누카잎추출물":{"cat":"barrier","desc":"피부를 진정시켜주는 항균 성분으로 잘 알려진 추출물이에요"},"2,3-부탄다이올":{"cat":"hydration","desc":"촉촉한 사용감을 주는 보습 용매예요"},"감나무잎추출물":{"cat":"active","desc":"항산화 효과로 잘 알려진 추출물이에요"}};
+// 표기 그대로 먼저 찾아보고(색소 CI 번호처럼 괄호 포함 표기 자체가 사전에 있는 경우), 없으면
+// 끝에 붙은 괄호 주석(예: "나이아신아마이드(100,000ppm)"의 "(100,000ppm)")을 떼고 한 번 더
+// 찾는다 — 농도 표기가 붙은 성분도 분류/설명이 정상적으로 뜨게 하기 위함.
+function ingredientLookupKey(name) { return name.replace(/\s*\([^)]*\)\s*$/, '').trim(); }
+function ingredientInfo(name) {
+  return INGREDIENT_FUNCTIONS[name] || INGREDIENT_FUNCTIONS[ingredientLookupKey(name)] || null;
+}
+function classifyIngredient(name) {
+  const hit = ingredientInfo(name);
+  return hit ? hit.cat : 'other';
+}
+
+// 전성분 문자열을 개별 성분 토큰으로 안전하게 쪼갠다.
+// - 쉼표가 소괄호 안에 있으면 쪼개지 않는다 (예: "나이아신아마이드(100,000ppm)")
+// - 숫자로만 된 조각은 바로 다음 조각과 다시 합친다 (예: "1"+"2-헥산다이올" → "1,2-헥산다이올")
+//   기존 비교 기능이 단순 split(',')만 써서, 83개 전성분 보유 제품 중 79개에 들어있는 흔한
+//   방부 보조성분 "1,2-헥산다이올"이 "1"이라는 있지도 않은 성분으로 잘못 쪼개지고 있었다.
+function splitIngredientTokens(raw) {
+  if (!raw) return [];
+  const rawParts = [];
+  let depth = 0, buf = '';
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth = Math.max(0, depth - 1);
+    if (ch === ',' && depth === 0) { rawParts.push(buf); buf = ''; }
+    else buf += ch;
+  }
+  if (buf) rawParts.push(buf);
+  const trimmed = rawParts.map(function(s) { return s.trim(); }).filter(Boolean);
+  const merged = [];
+  for (let i = 0; i < trimmed.length; i++) {
+    if (/^\d+$/.test(trimmed[i]) && i + 1 < trimmed.length) {
+      merged.push(trimmed[i] + ',' + trimmed[i + 1]);
+      i++;
+    } else {
+      merged.push(trimmed[i]);
+    }
+  }
+  return merged;
+}
+// 전성분 원문을 노트(색상별 상이 안내 등)와 섹션("[토너] ... / [로션] ..." 같은 세트 상품
+// 구성)으로 분해한다 — 대부분의 제품은 노트 없이 섹션 1개(label 없음)로만 떨어진다.
+function parseIngredientText(raw) {
+  if (!raw) return { note: '', sections: [] };
+  let note = '', text = raw;
+  const noteMatch = text.match(/^\[(색상별[^\]]*|공통[^\]]*|공식[^\]]*)\]\s*/);
+  if (noteMatch) { note = noteMatch[1]; text = text.slice(noteMatch[0].length); }
+  const sections = text.split(' / ').map(function(sec) {
+    const m = sec.trim().match(/^\[([^\]]+)\]\s*(.*)$/);
+    return m ? { label: m[1], text: m[2] } : { label: '', text: sec.trim() };
+  });
+  return { note: note, sections: sections };
+}
+// 제품의 전성분에서 섹션 구분 없이 전체 토큰을 한 번에 — 구성비 계산/공통성분 비교용.
+function allIngredientTokens(p) {
+  if (!p.ingredients) return [];
+  const parsed = parseIngredientText(p.ingredients);
+  let tokens = [];
+  parsed.sections.forEach(function(sec) { tokens = tokens.concat(splitIngredientTokens(sec.text)); });
+  return tokens;
+}
+// 토큰 목록 → 카테고리별 구성비(기타 포함, 내림차순)
+function computeComposition(tokens) {
+  const counts = {};
+  tokens.forEach(function(t) {
+    const cat = classifyIngredient(t);
+    counts[cat] = (counts[cat] || 0) + 1;
+  });
+  const total = tokens.length || 1;
+  return Object.keys(counts).map(function(cat) {
+    return { cat: cat, count: counts[cat], pct: counts[cat] / total * 100 };
+  }).sort(function(a, b) { return b.count - a.count; });
+}
+// 구성비 → CSS conic-gradient 문자열(도넛차트 배경)
+function buildDonutGradient(composition) {
+  let acc = 0;
+  const stops = composition.map(function(c) {
+    const start = acc, end = acc + c.pct;
+    acc = end;
+    const color = (ING_CATEGORY_META[c.cat] || ING_CATEGORY_META.other).color;
+    return color + ' ' + start.toFixed(2) + '% ' + end.toFixed(2) + '%';
+  });
+  return 'conic-gradient(' + stops.join(', ') + ')';
+}
+// 제품 1개의 도넛차트 + 범례 블록 HTML (색만으로 구분하지 않도록 라벨/숫자를 항상 같이 둔다)
+function renderDonutBlock(tokens) {
+  if (!tokens.length) return '';
+  const composition = computeComposition(tokens);
+  const gradient = buildDonutGradient(composition);
+  const legendHtml = composition.map(function(c) {
+    const meta = ING_CATEGORY_META[c.cat] || ING_CATEGORY_META.other;
+    return '<div class="ing-donut-legend-row">' +
+      '<span class="ing-donut-dot" style="background:' + meta.color + '"></span>' +
+      '<span class="ing-donut-legend-label">' + escapeHtml(meta.label) + '</span>' +
+      '<span class="ing-donut-legend-pct">' + Math.round(c.pct) + '%</span>' +
+    '</div>';
+  }).join('');
+  return '<div class="ing-donut-block">' +
+    '<div class="ing-donut" style="background:' + gradient + '"><div class="ing-donut-hole"><span class="ing-donut-n">' + tokens.length + '</span><small>종</small></div></div>' +
+    '<div class="ing-donut-legend">' + legendHtml + '</div>' +
+  '</div>';
+}
+// 성분 목록을 클릭 가능한 텍스트로 렌더링 — 쉼표는 그대로 ", "로 보이게 하되 성분명만
+// 점선 밑줄(.ing-term)로 클릭하면 역할 설명 팝오버(#ingPopover)가 뜬다.
+function renderIngredientChips(raw) {
+  const parsed = parseIngredientText(raw);
+  let html = '';
+  if (parsed.note) {
+    html += '<div class="ing-color-note">※ ' + escapeHtml(parsed.note) + ' — 정확한 전성분은 공식 페이지에서 확인해 주세요.</div>';
+  }
+  parsed.sections.forEach(function(sec, idx) {
+    if (idx > 0) html += '<div class="ing-section-sep"></div>';
+    if (sec.label) html += '<div class="ing-section-label">' + escapeHtml(sec.label) + '</div>';
+    const tokens = splitIngredientTokens(sec.text);
+    html += tokens.map(function(t) {
+      return '<span class="ing-term" data-ing="' + escapeHtml(t) + '">' + escapeHtml(t) + '</span>';
+    }).join('<span class="ing-sep">, </span>');
+  });
+  return html;
+}
+// 성분 클릭 팝오버 — 전성분 탭 카드(.ing-term)와 비교 모달 칩(.ing-chip) 둘 다 [data-ing]
+// 속성 하나로 같이 동작한다(아래 document 레벨 위임 클릭 리스너 참고).
+function showIngPopover(name, anchorEl) {
+  const pop = document.getElementById('ingPopover');
+  if (!pop) return;
+  const info = ingredientInfo(name);
+  const meta = ING_CATEGORY_META[info ? info.cat : 'other'];
+  const desc = info ? info.desc : '아직 역할 분류 정보가 없는 성분이에요. 정확한 정보는 화장품 성분 사전에서 확인해보세요.';
+  pop.innerHTML = '<div class="ing-pop-badge" style="color:' + meta.color + ';background:' + meta.color + '22">' + escapeHtml(meta.label) + '</div>' +
+    '<div class="ing-pop-name">' + escapeHtml(name) + '</div>' +
+    '<div class="ing-pop-desc">' + escapeHtml(desc) + '</div>';
+  pop.style.display = 'block';
+  pop.setAttribute('data-open-for', name);
+  const rect = anchorEl.getBoundingClientRect();
+  const popRect = pop.getBoundingClientRect();
+  let left = rect.left + window.scrollX;
+  const maxLeft = window.scrollX + document.documentElement.clientWidth - popRect.width - 10;
+  if (left > maxLeft) left = Math.max(10, maxLeft);
+  const top = rect.bottom + window.scrollY + 6;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
+function hideIngPopover() {
+  const pop = document.getElementById('ingPopover');
+  if (pop) { pop.style.display = 'none'; pop.removeAttribute('data-open-for'); }
+}
+document.addEventListener('click', function(e) {
+  const term = e.target.closest('[data-ing]');
+  const pop = document.getElementById('ingPopover');
+  if (term) {
+    e.stopPropagation();
+    const name = term.getAttribute('data-ing');
+    if (pop && pop.style.display === 'block' && pop.getAttribute('data-open-for') === name) {
+      hideIngPopover();
+    } else {
+      showIngPopover(name, term);
+    }
+    return;
+  }
+  if (pop && pop.style.display === 'block' && !pop.contains(e.target)) hideIngPopover();
+});
+// 팝오버가 떠 있는 상태에서 Esc를 누르면 팝오버만 닫고, 그 뒤에 등록된 비교 모달의 Esc
+// 핸들러(아래쪽 wiring)는 이번 keydown에서는 실행되지 않게 막는다 — 안 그러면 비교 모달 위에서
+// 성분 설명을 보다가 Esc 한 번에 모달까지 같이 닫혀버린다. 팝오버가 이미 닫혀있을 땐 그대로
+// 통과시켜서 비교 모달 Esc-닫기는 평소대로 동작한다.
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  const pop = document.getElementById('ingPopover');
+  if (pop && pop.style.display === 'block') {
+    hideIngPopover();
+    e.stopImmediatePropagation();
+  }
+});
+
 function renderProdContent() {
   const cats = currentProdCat ? [currentProdCat] : PRODCATS;
   const matchBrand = function(p) { return !currentProdBrand || (p.brand || 'CFC') === currentProdBrand; };
@@ -4256,9 +4664,14 @@ function renderProdContent() {
   // 브랜드 전체 이름(Cell Fusion C/수이스킨 등) 대신 다른 브랜드 필터·칩과 동일하게 약어
   // (CFC/SUS/KTZ/DMB)로 통일 — currentProdBrand/PRODBRANDS 자체가 이미 그 약어 코드다.
   const summaryLabel = currentProdBrand || PRODBRANDS.join(' · ');
-  const siteHint = currentProdBrand && BRAND_SITE_HINTS[currentProdBrand]
+  const siteHintText = currentProdBrand && BRAND_SITE_HINTS[currentProdBrand]
     ? ' (' + BRAND_SITE_HINTS[currentProdBrand] + ')'
     : ' (각 브랜드 자사몰 기준)';
+  // 모바일에서는 개수(.prod-summary-count)와 마찬가지로 이 괄호 안내문구까지 합쳐지면
+  // 줄바꿈 전환 버튼과 한 줄에서 다투다가 두 줄로 꺾여 가독성이 떨어진다는 지적 반영 —
+  // 부가 정보라 span으로 감싸 모바일에서만 숨긴다(검색 결과 안내는 사용자가 직접 입력한
+  // 맥락이라 그대로 둔다).
+  const siteHint = '<span class="prod-summary-hint">' + siteHintText + '</span>';
   const searchHint = normQuery ? ' · "' + escapeHtml(prodSearchQuery) + '" 검색 결과' : '';
   document.getElementById('prodSummaryBar').innerHTML = '<b>' + escapeHtml(summaryLabel) + '</b> — 판매 중인 상품<span class="prod-summary-count"> ' + total + '개</span>' + siteHint + searchHint;
 
@@ -4349,6 +4762,7 @@ function renderIngContent() {
     });
     if (!items.length) return;
     html += '<div class="prod-cat-head"><div class="cat-icon">' + iconFor(cat) + '</div><div class="cat-title-text">' + escapeHtml(cat) + '</div><div class="cat-n">' + items.length + '개</div></div>';
+    html += '<div class="ing-grid' + (ingViewMode !== 'grid' ? ' view-' + ingViewMode : '') + '">';
     items.forEach(function(p) {
       const key = productKey(p);
       const tagBrand = p.brand || 'CFC';
@@ -4364,32 +4778,43 @@ function renderIngContent() {
       const compareHtml = '<label class="ing-compare-label' + (hasIng ? '' : ' disabled') + '">' +
         '<input type="checkbox" class="ing-compare-check" data-key="' + escapeHtml(key) + '"' +
         (compareSet.has(key) ? ' checked' : '') + (hasIng ? '' : ' disabled') + '>비교하기</label>';
+      // 전성분 토큰 기준 구성비 도넛차트 — "공통 성분 하이라이트만으론 인사이트가 없다"는
+      // 피드백으로, 펼쳤을 때 이 제품 전성분이 기능적으로 어떻게 구성돼 있는지 한눈에 보여준다.
+      const donutHtml = hasIng ? renderDonutBlock(allIngredientTokens(p)) : '';
       const bodyHtml = hasIng
         ? '<div class="ing-full-wrap">' +
             '<button type="button" class="ing-full-toggle" data-key="' + escapeHtml(key) + '">' + (isOpen ? '전성분 접기 ▲' : '전성분 전체보기 ▾') + '</button>' +
-            '<div class="ing-full-text' + (isOpen ? ' open' : '') + '">' + escapeHtml(p.ingredients) + '</div>' +
+            '<div class="ing-full-text' + (isOpen ? ' open' : '') + '">' + donutHtml + renderIngredientChips(p.ingredients) + '</div>' +
           '</div>'
         : '<div class="ing-missing-note">전성분은 공식 페이지에서 확인해 주세요' +
             (p.url ? ' — <a href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">바로가기</a>' : '') + '</div>';
+      // 작은 토글 버튼만 누를 수 있어서 불편하다는 피드백 — 제목 영역 전체(.ing-card-title-wrap)를
+      // 눌러도 똑같이 펼쳐지게 넓혔다. 체크박스(비교하기)는 별도 영역이라 안 겹친다.
       html += '<div class="ing-card">' +
           '<div class="ing-card-head">' +
-            '<div><div class="ing-card-title">' + brandTag + escapeHtml(p.name) + '</div>' + codeLine + '</div>' +
+            '<div class="ing-card-title-wrap' + (hasIng ? ' clickable' : '') + '"' + (hasIng ? ' data-toggle-key="' + escapeHtml(key) + '"' : '') + '>' +
+              '<div class="ing-card-title">' + brandTag + escapeHtml(p.name) + '</div>' + codeLine +
+            '</div>' +
             compareHtml +
           '</div>' +
           bodyHtml +
         '</div>';
     });
+    html += '</div>';
   });
   const ingContentEl = document.getElementById('ingContent');
   const emptySub = normQuery ? '다른 검색어로 다시 시도해보세요.' : '';
   ingContentEl.innerHTML = html || '<div class="empty-state"><div class="empty-emoji">🧪</div><div class="empty-title">해당하는 제품이 없어요</div><div class="empty-sub">' + emptySub + '</div></div>';
 
+  function toggleIngExpand(key) {
+    if (ingExpanded.has(key)) ingExpanded.delete(key); else ingExpanded.add(key);
+    renderIngContent();
+  }
   Array.from(ingContentEl.querySelectorAll('.ing-full-toggle')).forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      const key = btn.getAttribute('data-key');
-      if (ingExpanded.has(key)) ingExpanded.delete(key); else ingExpanded.add(key);
-      renderIngContent();
-    });
+    btn.addEventListener('click', function() { toggleIngExpand(btn.getAttribute('data-key')); });
+  });
+  Array.from(ingContentEl.querySelectorAll('.ing-card-title-wrap.clickable')).forEach(function(el) {
+    el.addEventListener('click', function() { toggleIngExpand(el.getAttribute('data-toggle-key')); });
   });
   Array.from(ingContentEl.querySelectorAll('.ing-compare-check')).forEach(function(cb) {
     cb.addEventListener('change', function() { toggleCompare(cb.getAttribute('data-key'), cb.checked); });
@@ -4447,13 +4872,12 @@ function closeCompareModal() {
 function renderCompareModal() {
   const keys = Array.from(compareSet);
   const products = keys.map(findProductByKey).filter(Boolean);
-  // 쉼표로 쪼갠 뒤 트림만 해서 비교한다 — 브랜드마다 쉼표 뒤 공백 유무가 달라서(예:
-  // "정제수,징크옥사이드" vs "정제수, 프로판다이올") 트림은 해주지만, 그 이상의 정규화(색소
-  // CI 번호 괄호 제거 등)는 하지 않는다. 즉 완전히 같은 표기일 때만 "공통 성분"으로 잡히고,
-  // 같은 성분이라도 표기가 조금 다르면 공통으로 안 잡힐 수 있다 — 이 한계는 안내 문구로 알린다.
-  const tokenLists = products.map(function(p) {
-    return (p.ingredients || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
-  });
+  // splitIngredientTokens로 쪼갠다 — 예전엔 단순 split(',')만 써서 "1,2-헥산다이올"처럼
+  // 쉼표가 이름 안에 든 성분이 "1"이라는 가짜 성분으로 잘못 쪼개지던 버그가 있었다(비교
+  // 대상 제품 대부분이 갖고 있는 흔한 방부 보조성분이라 영향이 컸다). 표기 자체가 다르면
+  // (공백, 색소 CI 번호 등) 여전히 같은 성분이어도 공통으로 안 잡힐 수 있다 — 이 한계는
+  // 안내 문구로 알린다.
+  const tokenLists = products.map(allIngredientTokens);
   const countMap = {};
   tokenLists.forEach(function(tokens) {
     const seen = new Set();
@@ -4467,14 +4891,33 @@ function renderCompareModal() {
 
   document.getElementById('compareSub').innerHTML = products.length < 2
     ? '2개 이상 선택해야 비교할 수 있어요.'
-    : '똑같은 표기로 일치하는 성분만 <span class="compare-common-note">공통 성분(' + commonSet.size + '개)</span>으로 강조했어요. 브랜드마다 표기(공백, 색소 CI 번호 등)가 달라 같은 성분이어도 강조되지 않을 수 있어요.';
+    : '위 도넛차트는 전성분을 보습/유분/장벽케어 등 <b>기능별 구성비</b>로 보여줘요. 아래 성분 목록에서 똑같은 표기로 일치하는 성분은 <span class="compare-common-note">공통 성분(' + commonSet.size + '개)</span>으로 강조했고, 성분을 클릭하면 역할 설명이 떠요. 브랜드마다 표기(공백, 색소 CI 번호 등)가 달라 같은 성분이어도 공통으로 강조되지 않을 수 있어요.';
+
+  // 공통 성분이 뭔지 알려면 아래로 내려가 칼럼마다 강조된 칩을 일일이 찾아봐야 했다는 지적
+  // 반영 — 어떤 성분이 겹치는지를 칼럼 목록보다 먼저, 맨 위에 요약으로 바로 보여준다.
+  const commonList = Array.from(commonSet);
+  const commonSummaryEl = document.getElementById('compareCommonSummary');
+  if (commonSummaryEl) {
+    if (products.length < 2) {
+      commonSummaryEl.innerHTML = '';
+    } else if (!commonList.length) {
+      commonSummaryEl.innerHTML = '<div class="compare-common-summary"><span class="compare-common-summary-label">공통 성분 0개</span> — 똑같은 표기로 일치하는 성분이 없어요.</div>';
+    } else {
+      commonSummaryEl.innerHTML = '<div class="compare-common-summary">' +
+        '<span class="compare-common-summary-label">공통 성분 (' + commonList.length + '개)</span>' +
+        '<div class="ing-chip-list">' + commonList.map(function(t) {
+          return '<span class="ing-chip common" data-ing="' + escapeHtml(t) + '">' + escapeHtml(t) + '</span>';
+        }).join('') + '</div>' +
+      '</div>';
+    }
+  }
 
   let colsHtml = '';
   products.forEach(function(p, idx) {
     const tagBrand = p.brand || 'CFC';
     const tagTheme = HERO_THEMES[tagBrand] || HERO_THEMES.CFC;
     const chips = tokenLists[idx].map(function(t) {
-      return '<span class="ing-chip' + (commonSet.has(t) ? ' common' : '') + '">' + escapeHtml(t) + '</span>';
+      return '<span class="ing-chip' + (commonSet.has(t) ? ' common' : '') + '" data-ing="' + escapeHtml(t) + '">' + escapeHtml(t) + '</span>';
     }).join('');
     colsHtml += '<div class="compare-col">' +
         '<div class="compare-col-head">' +
@@ -4482,7 +4925,7 @@ function renderCompareModal() {
           '<div class="compare-col-name">' + escapeHtml(p.name) + '</div>' +
           (p.itemCode ? '<div class="compare-col-code">' + escapeHtml(p.itemCode) + '</div>' : '') +
         '</div>' +
-        '<div class="compare-col-body"><div class="ing-chip-list">' + chips + '</div></div>' +
+        '<div class="compare-col-body">' + renderDonutBlock(tokenLists[idx]) + '<div class="ing-chip-list">' + chips + '</div></div>' +
       '</div>';
   });
   document.getElementById('compareCols').innerHTML = colsHtml;
@@ -4831,7 +5274,7 @@ function quizResultComment(score, total) {
   if (ratio >= 0.8) return '훌륭해요! CS 에이스에 가까워요 👏';
   if (ratio >= 0.6) return '좋아요! 조금만 더 익히면 완벽해요 💪';
   if (ratio >= 0.4) return 'FAQ 페이지를 좀 더 살펴보면 좋겠어요 📖';
-  return '제품 문의 FAQ 탭에서 다시 확인해보세요 🔍';
+  return '제품 FAQ 탭에서 다시 확인해보세요 🔍';
 }
 
 function loadLeaderboard() {
@@ -5169,6 +5612,16 @@ if (darkModeToggleBtn) {
   darkModeToggleBtn.addEventListener('click', function() {
     const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     applyTheme(next);
+  });
+}
+
+const fontSizeToggleEl = document.getElementById('fontSizeToggle');
+if (fontSizeToggleEl) {
+  // 페이지 로드 시점엔 initFontSize()에서 속성만 세팅했으니, 이제 DOM/레이아웃이 준비된
+  // 뒤에 active 클래스 + 슬라이딩 필 위치를 한 번 맞춰준다.
+  applyFontSize(document.documentElement.getAttribute('data-font-size') || 'md');
+  Array.from(fontSizeToggleEl.querySelectorAll('.mode-btn')).forEach(function(btn) {
+    btn.addEventListener('click', function() { applyFontSize(btn.getAttribute('data-fontsize')); });
   });
 }
 
