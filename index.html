@@ -154,9 +154,14 @@
   .reveal.in-view { opacity: 1; transform: translateY(0); }
   @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
-    .view.active { animation: none; }
+    /* !important: .view.active / .hero-text / .hero-gallery 각각의 "기본" animation 선언이
+       이 블록보다 소스 순서상 더 뒤에 나와서(같은 셀렉터, 같은 우선순위) 캐스케이드상 항상
+       이겨버리는 바람에, prefers-reduced-motion을 켜도 세 애니메이션이 그대로 재생되고
+       있었다 — 2026-11-05 전체 점검으로 발견. 접근성 설정이 컴포넌트별 선언 위치와 무관하게
+       항상 이겨야 하므로 !important로 고정한다(블록을 통째로 뒤로 옮기는 대신). */
+    .view.active { animation: none !important; }
     html { scroll-behavior: auto; }
-    .hero-text, .hero-gallery { animation: none; }
+    .hero-text, .hero-gallery { animation: none !important; }
     .prod-card, .category-block { animation: none; }
   }
 
@@ -305,8 +310,9 @@
        content width by default — without an explicit width it never reaches the full row,
        which is why the icons looked bunched up on the left. width:100% makes it stretch. */
     .brand-icon-grid { grid-template-columns: repeat(4, 1fr); max-width: 100%; width: 100%; gap: 10px; }
-    .brand-icon-avatar { width: 56px; height: 56px; }
-    .brand-icon-label { font-size: 11px; }
+    /* .brand-icon-avatar/.brand-icon-label 모바일 축소값은 아래로 옮겼다 — 그 둘의 "기본"
+       선언(지름 58px/폰트 12px)이 여기보다 소스 순서상 나중에 나와서 이 모바일 값(56px/11px)이
+       항상 무시되고 있었다(2026-11-05 전체 점검으로 발견, 도넛차트 때와 같은 유형의 버그). */
   }
   .brand-icon-btn {
     display: flex; flex-direction: column; align-items: center; gap: 7px;
@@ -326,6 +332,10 @@
   .brand-icon-avatar .mono { color: #fff; font-weight: 800; font-size: 22px; line-height: 1; }
   .brand-icon-label { font-size: 12px; font-weight: 700; color: var(--gray-600); }
   .brand-icon-btn.active .brand-icon-label { color: var(--accent); }
+  @media (max-width: 480px) {
+    .brand-icon-avatar { width: 56px; height: 56px; }
+    .brand-icon-label { font-size: 11px; }
+  }
 
   .secondary-filter { margin-top: 10px; }
   .secondary-filter .catselect { min-width: 170px; }
@@ -724,8 +734,9 @@
        an explicit 2-column grid on mobile instead, matching the compact-but-legible card size
        most mobile product listings use. */
     .prod-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .prod-info { padding: 9px 9px 11px; }
-    .prod-name { font-size: 12px; min-height: 34px; }
+    /* .prod-info/.prod-name 모바일 축소값은 아래로 옮겼다 — 그 둘의 "기본" 선언이 여기보다
+       소스 순서상 나중에 나와서 이 모바일 값이 항상 무시되고 있었다(2026-11-05 전체 점검으로
+       발견 — 2열로 좁아진 카드에 데스크탑용 패딩/폰트 크기가 그대로 적용되던 버그). */
   }
   /* transform now on --spring (slight overshoot) instead of --ease, and :active adds a press-down
      scale — hover alone (float up) never gave a "this was pressed" cue on click, just a flat
@@ -760,6 +771,10 @@
   .prod-thumb .noimg { color: var(--gray-400); font-size: 11px; }
   .prod-info { padding: 12px 13px 15px; }
   .prod-name { font-size: 12.8px; font-weight: 600; line-height: 1.5; color: var(--gray-900); min-height: 38px; transition: color .15s; }
+  @media (max-width: 600px) {
+    .prod-info { padding: 9px 9px 11px; }
+    .prod-name { font-size: 12px; min-height: 34px; }
+  }
   .prod-brand-tag { display: inline-block; margin-right: 5px; font-size: 9.5px; font-weight: 700; color: var(--accent-badge-text); background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; vertical-align: middle; }
   .prod-code { margin-top: 4px; font-size: 10.5px; font-weight: 400; color: var(--gray-400); letter-spacing: .01em; }
   .prod-ing-match { margin-top: 4px; font-size: 10.5px; line-height: 1.4; color: var(--accent-badge-text); background: var(--accent-soft); padding: 2px 6px; border-radius: 4px; display: inline-block; }
@@ -2074,7 +2089,7 @@
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-05 14:20 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 14:43 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
@@ -3784,6 +3799,7 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '전체 코드 점검 중 발견한 CSS 우선순위 충돌 7건 수정 — 모바일 화면에서 "동작 줄이기(prefers-reduced-motion)" 접근성 설정을 켜도 애니메이션이 그대로 재생되던 문제, 작은 화면에서 브랜드 아이콘·제품 카드 제목의 축소 스타일이 적용되지 않던 문제 등 (화면상 표시엔 변화 없고, 접근성 설정과 일부 반응형 레이아웃이 의도대로 동작하도록 내부 오류만 바로잡음)' },
   { date: '2026-11-05', title: '전성분 기능별 구성비 도넛차트 · 성분 클릭 역할 설명 기능을 임시 비활성화 — 성분 중 절반가량이 기능 분류 데이터가 없고 전성분 처방 기준 검증 전이라, 화장품법상 효능 표시로 오인될 리스크를 없애기 위해 평문 목록 + 공통 성분 강조만 남김' },
   { date: '2026-11-05', title: '전성분 비교 도넛차트 — 성분 비율을 "%"가 아닌 "N종"(개수)으로 표시하도록 변경, 자동 분류는 참고용이라는 안내문구 추가, "액티브" 카테고리 및 일부 성분 설명에서 기능성화장품 심사·효능 표시로 오인될 수 있는 "기능성" 표현 제거' },
   { date: '2026-11-05', title: '전성분 탭 3열(모바일 2열) 보기에서 카드 비율이 깨지던 문제 수정 — 제목과 비교하기 체크박스를 세로로 배치하고 제목을 2줄로 정리' },
