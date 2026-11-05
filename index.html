@@ -2089,7 +2089,7 @@
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-05 16:37 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 16:52 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
@@ -2304,7 +2304,7 @@ const VIEW_HERO_COPY = {
   // 반영, 자료실 전용 문구로 교체.
   archive: {
     eyebrow: 'CMS Lab · 자료실',
-    title: '필요한 제품소개서,<br>클릭 한 번으로 받으세요',
+    title: '필요한 제품 소개서,<br>클릭 한 번으로 받으세요',
     sub: '제품 소개서를 필요할 때마다 간편하게 꺼내 써보세요.<br>헤매지 않게 항상 최신 파일로만 올려둘게요.'
   },
   ingredients: {
@@ -3811,6 +3811,8 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '자료실 소개 문구 띄어쓰기 수정 — "필요한 제품소개서" → "필요한 제품 소개서"' },
+  { date: '2026-11-05', title: '업데이트 내역 모달·전성분 비교 모달 — 열릴 때 포커스가 모달 안으로 들어가지 않던 접근성 보완. 이제 모달이 열리면 포커스가 자동으로 닫기 버튼으로 이동하고, Tab 키를 눌러도 모달 밖으로 빠져나가지 않으며, 닫으면 원래 누르던 버튼으로 포커스가 되돌아갑니다' },
   { date: '2026-11-05', title: '전성분 탭에서도 "최근 본 질문 이어보기" 배너를 제외 — FAQ 열람 이력이라 제품목록 탭처럼 전성분 탭에서도 맥락이 안 맞는다는 피드백 반영 (즐겨찾기 배너는 그대로 유지)' },
   { date: '2026-11-05', title: '자료실 — 제품소개서 PDF 17개 중 9개가 업로드 단계에서부터 빈 파일이었던 것을 발견. 실제 파일 교체 전까지, 다운로드 시 조용히 깨진 탭이 열리는 대신 "이 자료는 아직 준비 중이에요" 안내가 뜨도록 수정 (영향 제품: 스틱 썬 2종·시카 카밍 다운 크림·토닝 C 비타 레티날 아이크림·세라 듀이 세팅 미스트·스킨 블레미쉬 밤 인텐시브·글래스 스킨 쿠션/토너·더 베리뮨 선쿠션·더 카밍 판테놀 스틱밤·리페라 쿼드엑스)' },
   { date: '2026-11-05', title: '전체 코드 점검 중 발견한 CSS 우선순위 충돌 7건 수정 — 모바일 화면에서 "동작 줄이기(prefers-reduced-motion)" 접근성 설정을 켜도 애니메이션이 그대로 재생되던 문제, 작은 화면에서 브랜드 아이콘·제품 카드 제목의 축소 스타일이 적용되지 않던 문제 등 (화면상 표시엔 변화 없고, 접근성 설정과 일부 반응형 레이아웃이 의도대로 동작하도록 내부 오류만 바로잡음)' },
@@ -3849,16 +3851,52 @@ function renderChangelog() {
     return '<div class="changelog-entry"><div class="changelog-date">' + e.date + '</div><div class="changelog-title">' + e.title + '</div></div>';
   }).join('');
 }
+// 모달 포커스 관리 — 열릴 때 키보드 포커스를 모달 안(닫기 버튼)으로 옮기고, Tab이 모달
+// 바깥으로 새 나가지 않게 가두고, 닫히면 열기 전에 포커스가 있던 요소로 되돌린다. 비교 모달·
+// 업데이트 내역 모달 둘 다 같은 패턴이 필요해서 공용 헬퍼로 뺀다(2026-11-05 접근성 보완 —
+// ⌘K 검색창은 이미 입력창에 포커스를 넣고 있었지만, 이 두 모달은 열려도 포커스가 그대로
+// 배경(예: 방금 누른 버튼)에 남아있어서 키보드로만 쓰는 경우 모달이 열린 줄도 모르고 Tab을
+// 누르면 뒤 배경 요소들을 돌아다니게 됐었다).
+function getModalFocusables(container) {
+  if (!container) return [];
+  return Array.from(container.querySelectorAll(
+    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+  )).filter(function(el) { return el.offsetParent !== null; });
+}
+function trapModalTab(e, boxSelector) {
+  if (e.key !== 'Tab') return;
+  const box = document.querySelector(boxSelector);
+  const focusables = getModalFocusables(box);
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault(); last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault(); first.focus();
+  }
+}
+
+let lastFocusedBeforeChangelog = null;
 function openChangelog() {
   const overlay = document.getElementById('changelogOverlay');
   if (!overlay) return;
   renderChangelog();
+  lastFocusedBeforeChangelog = document.activeElement;
   overlay.classList.add('show');
+  setTimeout(function() {
+    const closeBtn = document.getElementById('changelogCloseBtn');
+    if (closeBtn) closeBtn.focus();
+  }, 10);
 }
 function closeChangelog() {
   const overlay = document.getElementById('changelogOverlay');
   if (!overlay) return;
   overlay.classList.remove('show');
+  if (lastFocusedBeforeChangelog && typeof lastFocusedBeforeChangelog.focus === 'function') {
+    lastFocusedBeforeChangelog.focus();
+  }
+  lastFocusedBeforeChangelog = null;
 }
 const changelogTriggerBtn = document.getElementById('changelogTrigger');
 if (changelogTriggerBtn) changelogTriggerBtn.addEventListener('click', openChangelog);
@@ -3871,7 +3909,9 @@ if (changelogOverlayEl) {
   });
 }
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && changelogOverlayEl && changelogOverlayEl.classList.contains('show')) closeChangelog();
+  if (!changelogOverlayEl || !changelogOverlayEl.classList.contains('show')) return;
+  if (e.key === 'Escape') closeChangelog();
+  else trapModalTab(e, '.changelog-box');
 });
 
 document.getElementById('cmdkTrigger').addEventListener('click', openCmdk);
@@ -4940,12 +4980,24 @@ function updateCompareTray() {
   document.getElementById('compareTrayBtn').disabled = compareSet.size < 2;
 }
 
+// 포커스 관리(열릴 때 모달 안으로, 닫히면 원래 자리로)는 getModalFocusables/trapModalTab과
+// 같은 패턴 — 업데이트 내역 모달 쪽 주석 참고(2026-11-05).
+let lastFocusedBeforeCompare = null;
 function openCompareModal() {
   renderCompareModal();
+  lastFocusedBeforeCompare = document.activeElement;
   document.getElementById('compareOverlay').classList.add('show');
+  setTimeout(function() {
+    const closeBtn = document.getElementById('compareCloseBtn');
+    if (closeBtn) closeBtn.focus();
+  }, 10);
 }
 function closeCompareModal() {
   document.getElementById('compareOverlay').classList.remove('show');
+  if (lastFocusedBeforeCompare && typeof lastFocusedBeforeCompare.focus === 'function') {
+    lastFocusedBeforeCompare.focus();
+  }
+  lastFocusedBeforeCompare = null;
 }
 
 function renderCompareModal() {
@@ -5564,7 +5616,9 @@ document.getElementById('compareOverlay').addEventListener('click', function(e) 
   if (e.target === this) closeCompareModal();
 });
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && document.getElementById('compareOverlay').classList.contains('show')) closeCompareModal();
+  if (!document.getElementById('compareOverlay').classList.contains('show')) return;
+  if (e.key === 'Escape') closeCompareModal();
+  else trapModalTab(e, '.compare-box');
 });
 
 document.getElementById('missBadge').addEventListener('click', function(e) {
