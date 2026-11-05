@@ -2089,7 +2089,7 @@
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-05 14:43 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 16:08 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
@@ -2439,6 +2439,17 @@ async function decryptPdfToBlobUrl(url, key) {
   const iv = bytes.slice(0, 12);
   const data = bytes.slice(12);
   const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, data);
+  // AES-GCM의 인증 태그는 암호화된 바이트 자체가 맞는지만 확인할 뿐, 그 안에 실제 PDF가 들어
+  // 있는지는 보장하지 않는다 — 2026-11-05 전체 점검에서 자료실 17개 중 9개가 원본 업로드 단계
+  // 에서부터 내용이 비어있던(2바이트) 자리표시자였다는 게 드러났다. 복호화 자체는 에러 없이
+  // "성공"해버려서 그동안 CS 담당자가 다운로드를 눌러도 아무 에러 메시지 없이 빈/깨진 PDF
+  // 탭만 열렸다. 실제 PDF 파일로 교체되기 전까지는, 최소한 "이 자료는 아직 준비되지 않았다"고
+  // 분명히 알려주기 위해 PDF 매직 바이트(%PDF-)와 최소 크기를 확인한다.
+  const isPdfSignature = plainBuf.byteLength > 100 &&
+    new TextDecoder().decode(new Uint8Array(plainBuf, 0, 5)) === '%PDF-';
+  if (!isPdfSignature) {
+    throw new Error('empty-or-invalid-pdf');
+  }
   const blob = new Blob([plainBuf], { type: 'application/pdf' });
   return URL.createObjectURL(blob);
 }
@@ -3799,6 +3810,7 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '자료실 — 제품소개서 PDF 17개 중 9개가 업로드 단계에서부터 빈 파일이었던 것을 발견. 실제 파일 교체 전까지, 다운로드 시 조용히 깨진 탭이 열리는 대신 "이 자료는 아직 준비 중이에요" 안내가 뜨도록 수정 (영향 제품: 스틱 썬 2종·시카 카밍 다운 크림·토닝 C 비타 레티날 아이크림·세라 듀이 세팅 미스트·스킨 블레미쉬 밤 인텐시브·글래스 스킨 쿠션/토너·더 베리뮨 선쿠션·더 카밍 판테놀 스틱밤·리페라 쿼드엑스)' },
   { date: '2026-11-05', title: '전체 코드 점검 중 발견한 CSS 우선순위 충돌 7건 수정 — 모바일 화면에서 "동작 줄이기(prefers-reduced-motion)" 접근성 설정을 켜도 애니메이션이 그대로 재생되던 문제, 작은 화면에서 브랜드 아이콘·제품 카드 제목의 축소 스타일이 적용되지 않던 문제 등 (화면상 표시엔 변화 없고, 접근성 설정과 일부 반응형 레이아웃이 의도대로 동작하도록 내부 오류만 바로잡음)' },
   { date: '2026-11-05', title: '전성분 기능별 구성비 도넛차트 · 성분 클릭 역할 설명 기능을 임시 비활성화 — 성분 중 절반가량이 기능 분류 데이터가 없고 전성분 처방 기준 검증 전이라, 화장품법상 효능 표시로 오인될 리스크를 없애기 위해 평문 목록 + 공통 성분 강조만 남김' },
   { date: '2026-11-05', title: '전성분 비교 도넛차트 — 성분 비율을 "%"가 아닌 "N종"(개수)으로 표시하도록 변경, 자동 분류는 참고용이라는 안내문구 추가, "액티브" 카테고리 및 일부 성분 설명에서 기능성화장품 심사·효능 표시로 오인될 수 있는 "기능성" 표현 제거' },
@@ -5071,7 +5083,13 @@ document.getElementById('resContent').addEventListener('click', async function(e
     const blobUrl = await decryptPdfToBlobUrl(file, protectedKey);
     window.open(blobUrl, '_blank');
   } catch (err) {
-    alert('파일을 여는 중 문제가 발생했습니다.');
+    // 2026-11-05: 자료실 17개 중 9개가 업로드 단계에서부터 빈 파일이었던 게 발견됨 — 실제
+    // 파일로 교체되기 전까지는 조용히 깨진 탭을 여는 대신 분명한 안내를 띄운다.
+    if (err && err.message === 'empty-or-invalid-pdf') {
+      alert('이 자료는 아직 준비 중이에요. RM팀 엠버에게 문의해주세요🙏');
+    } else {
+      alert('파일을 여는 중 문제가 발생했습니다.');
+    }
   } finally {
     if (dl) dl.innerHTML = prevHtml;
   }
