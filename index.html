@@ -1704,7 +1704,6 @@
   }
   .ing-chip:hover { filter: brightness(.94); }
   .ing-chip.common { background: var(--accent-soft); color: var(--accent-badge-text); font-weight: 700; }
-  .compare-common-note { margin-top: 2px; font-weight: 700; color: var(--accent-badge-text); }
 
   /* 어떤 성분이 공통인지 칼럼마다 찾아보지 않아도 되도록, 모달 맨 위에 공통 성분 칩을
      먼저 요약해 보여주는 영역 — 칼럼 목록(.compare-col-body의 .ing-chip-list)과 똑같은
@@ -2049,7 +2048,7 @@
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-05 10:42 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 10:54 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
@@ -3759,6 +3758,7 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '전성분 비교 모달 상단 안내문구를 더 간결하게 다듬음' },
   { date: '2026-11-05', title: '"맨 위로"·"맨 아래로" 버튼을 스크롤 위치와 상관없이 항상 보이도록 변경, 위/아래 버튼 배치 순서 수정' },
   { date: '2026-11-05', title: '화면 하단에 "맨 아래로" 버튼 추가 — 기존 "맨 위로"와 짝을 이뤄 위/아래 양방향 스크롤 지원' },
   { date: '2026-11-05', title: '전성분 비교 도넛차트 색상을 더 밝고 선명한 팔레트로 전체 교체' },
@@ -4899,7 +4899,7 @@ function renderCompareModal() {
 
   document.getElementById('compareSub').innerHTML = products.length < 2
     ? '2개 이상 선택해야 비교할 수 있어요.'
-    : '위 도넛차트는 전성분을 보습/유분/장벽케어 등 <b>기능별 구성비</b>로 보여줘요. 아래 성분 목록에서 똑같은 표기로 일치하는 성분은 <span class="compare-common-note">공통 성분(' + commonSet.size + '개)</span>으로 강조했고, 성분을 클릭하면 역할 설명이 떠요. 브랜드마다 표기(공백, 색소 CI 번호 등)가 달라 같은 성분이어도 공통으로 강조되지 않을 수 있어요.';
+    : '각 성분을 클릭하면 역할 설명을 확인할 수 있어요. 브랜드마다 표기(공백, 색소 CI 번호 등)가 달라 같은 성분이어도 공통으로 강조되지 않을 수 있어요.';
 
   // 공통 성분이 뭔지 알려면 아래로 내려가 칼럼마다 강조된 칩을 일일이 찾아봐야 했다는 지적
   // 반영 — 어떤 성분이 겹치는지를 칼럼 목록보다 먼저, 맨 위에 요약으로 바로 보여준다.
