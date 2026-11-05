@@ -4297,7 +4297,7 @@ function renderProdContent() {
       // 전성분을 텍스트로 못 가져온 32개 제품(자사몰이 성분을 이미지로만 제공하는 경우)은 검색
       // 자체는 이름/품목코드로 여전히 되지만, 성분 궁금하면 공식 페이지에서 보라고 안내한다.
       const ingNotice = (!p.ingredients && p.url)
-        ? '<div class="prod-ing-missing">전성분은 공식 페이지에서 확인해주세요</div>'
+        ? '<div class="prod-ing-missing">전성분은 공식 페이지에서 확인해 주세요</div>'
         : '';
       // NOTE: no "reveal" class (see the matching note in renderContent()) and no entrance
       // animation/stagger at all (see .prod-card CSS) — the product grid is rebuilt on every
@@ -4369,7 +4369,7 @@ function renderIngContent() {
             '<button type="button" class="ing-full-toggle" data-key="' + escapeHtml(key) + '">' + (isOpen ? '전성분 접기 ▲' : '전성분 전체보기 ▾') + '</button>' +
             '<div class="ing-full-text' + (isOpen ? ' open' : '') + '">' + escapeHtml(p.ingredients) + '</div>' +
           '</div>'
-        : '<div class="ing-missing-note">전성분은 공식 페이지에서 확인해주세요' +
+        : '<div class="ing-missing-note">전성분은 공식 페이지에서 확인해 주세요' +
             (p.url ? ' — <a href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener">바로가기</a>' : '') + '</div>';
       html += '<div class="ing-card">' +
           '<div class="ing-card-head">' +
@@ -4750,7 +4750,7 @@ function isTestEntry(name) {
 function submitQuizResult(name, score, total) {
   const statusEl = document.getElementById('quizSubmitStatus');
   const db = ensureFirebase();
-  if (!db) { statusEl.textContent = '순위표 연결에 실패했어요. (네트워크 상태를 확인해주세요)'; return; }
+  if (!db) { statusEl.textContent = '순위표 연결에 실패했어요. (네트워크 상태를 확인해 주세요)'; return; }
   statusEl.textContent = '순위표에 기록하는 중...';
   db.collection('quizResults').add({
     name: name,
