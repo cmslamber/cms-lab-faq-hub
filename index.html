@@ -925,17 +925,17 @@
   .back-to-top, .back-to-bottom {
     position: fixed; right: 24px; width: 46px; height: 46px; border-radius: 50%;
     background: var(--fab-bg); color: #fff; border: none; font-size: 18px; cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0,0,0,.22); display: none; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,.22); display: flex; align-items: center; justify-content: center;
     z-index: 40; transition: background .15s;
   }
   /* ⌘K 바텀시트는 이미 env(safe-area-inset-bottom) 처리가 돼 있는데 이 버튼은 빠져있었다 —
      하단 제스처 바가 있는 최신 아이폰에서 고정 24px만으로는 버튼이 그 바로 위에 바짝
      붙어 보인다. env()가 없는 브라우저에서는 safe-area-inset-bottom이 그냥 0으로 취급돼
-     기존 24px 그대로 유지된다. 맨아래로 버튼은 그 위에 46px(버튼 높이)+10px(간격)만큼 쌓는다. */
-  .back-to-top { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
-  .back-to-bottom { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+     기존 24px 그대로 유지된다. 위/아래 버튼 둘 다 스크롤 위치와 무관하게 상시 노출 —
+     아래쪽(화면 엣지에 더 가까운 쪽)에 "맨 위로", 그 위에 "맨 아래로"를 쌓는다. */
+  .back-to-bottom { bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .back-to-top { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
   .back-to-top:hover, .back-to-bottom:hover { background: var(--accent); }
-  .back-to-top.show, .back-to-bottom.show { display: flex; }
 
   .copy-toast {
     position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(14px) scale(.96);
@@ -2049,12 +2049,12 @@
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-05 10:35 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 10:42 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
-<button id="backToBottom" class="back-to-bottom" title="맨 아래로" aria-label="맨 아래로">↓</button>
 <button id="backToTop" class="back-to-top" title="맨 위로" aria-label="맨 위로">↑</button>
+<button id="backToBottom" class="back-to-bottom" title="맨 아래로" aria-label="맨 아래로">↓</button>
 <div id="copyToast" class="copy-toast"><span class="copy-toast-icon">✓</span><span id="copyToastMsg">답변이 복사되었어요</span></div>
 <div id="updateBanner" class="update-banner">
   <span>새 버전이 배포됐어요. 새로고침하면 최신 내용으로 볼 수 있어요.</span>
@@ -3493,7 +3493,6 @@ window.addEventListener('resize', function() {
     updateAllModePills();
     // 창 크기가 바뀌면(예: 회전) 넘치던 칩 줄이 다 들어가거나 반대가 될 수 있어 다시 계산한다.
     updateAllChipScrollFades();
-    if (typeof updateScrollFabVisibility === 'function') updateScrollFabVisibility();
   }, 120);
 });
 
@@ -3760,6 +3759,7 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '"맨 위로"·"맨 아래로" 버튼을 스크롤 위치와 상관없이 항상 보이도록 변경, 위/아래 버튼 배치 순서 수정' },
   { date: '2026-11-05', title: '화면 하단에 "맨 아래로" 버튼 추가 — 기존 "맨 위로"와 짝을 이뤄 위/아래 양방향 스크롤 지원' },
   { date: '2026-11-05', title: '전성분 비교 도넛차트 색상을 더 밝고 선명한 팔레트로 전체 교체' },
   { date: '2026-11-05', title: '자료실 비밀번호(대외비) 입력 시 항상 "비밀번호가 올바르지 않습니다"로 뜨던 오류 수정 — 제품 목록 비공개 해제 후에도 내부적으로 존재하지 않는 데이터를 확인하려던 버그' },
@@ -5531,19 +5531,7 @@ document.addEventListener('click', function(e) {
 
 const backToTop = document.getElementById('backToTop');
 const backToBottom = document.getElementById('backToBottom');
-// 위로 버튼은 "맨 위에서 500px 이상 내려왔을 때", 아래로 버튼은 반대로 "맨 아래까지
-// 500px 이상 남았을 때"만 보인다 — 둘 다 "지금 눌러서 갈 의미가 있는" 위치에서만 뜨게 해서,
-// 페이지 맨 위에서는 아래로 버튼만, 맨 아래 근처에서는 위로 버튼만 보이는 식으로 자연스럽게
-// 전환된다. 탭을 바꾸거나 창 크기가 바뀌면(모바일 회전 등) 콘텐츠 높이가 달라지므로 그
-// 타이밍에도 다시 계산해준다(아래 renderContent 계열 호출부 및 resize 리스너 참고).
-function updateScrollFabVisibility() {
-  const scrollY = window.scrollY;
-  const remaining = document.documentElement.scrollHeight - (scrollY + window.innerHeight);
-  backToTop.classList.toggle('show', scrollY > 500);
-  backToBottom.classList.toggle('show', remaining > 500);
-}
-window.addEventListener('scroll', updateScrollFabVisibility);
-updateScrollFabVisibility();
+// 스크롤 위치와 무관하게 두 버튼 모두 항상 떠 있다(CSS 기본값이 display:flex).
 backToTop.addEventListener('click', function() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
