@@ -1583,7 +1583,20 @@
   .ing-grid.view-compact .ing-card { padding: 10px 12px; }
   .ing-grid.view-compact .ing-card-title { font-size: 12px; }
   @media (max-width: 640px) { .ing-grid { grid-template-columns: 1fr; } }
-  @media (max-width: 420px) { .ing-grid.view-compact { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
+  /* 3열(compact) 보기를 좁은 화면까지 그대로 썼더니 칸 폭이 ~170px로 좁아져 "비교하기"
+     체크박스+글자가 제목 영역을 거의 다 밀어내고, 그 결과 제품명이 "나이/아신 잡티/썬
+     세럼/40ml"처럼 한 글자씩 꺾여 내려가면서 카드마다 높이가 들쭉날쭉 — 화면 비율이
+     깨져 보이던 원인이었다. 제목과 비교 체크박스를 가로 배치 대신 세로로 쌓아 제목에
+     칸 전체 폭을 내어주고, 제목은 2줄로 말줄임해 카드 높이를 가지런히 맞춘다. */
+  @media (max-width: 420px) {
+    .ing-grid.view-compact { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .ing-grid.view-compact .ing-card-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .ing-grid.view-compact .ing-card-title {
+      font-size: 11.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .ing-grid.view-compact .ing-compare-label { padding: 2px 0 0; font-size: 10.5px; }
+  }
 
   /* 성분 구성비 도넛차트 — conic-gradient로 그려서 라이브러리 없이 가볍게. 가운데 구멍에
      전체 성분 개수를 띄우고, 오른쪽 범례에 카테고리명+비율을 나란히 둔다(색만으로 구분하지
@@ -1660,21 +1673,6 @@
     overflow: hidden; transform: translateY(-8px) scale(.98); transition: transform .2s var(--spring);
   }
   .compare-overlay.show .compare-box { transform: translateY(0) scale(1); }
-  @media (max-width: 760px) {
-    .compare-overlay { align-items: flex-end; padding: 0; }
-    .compare-box {
-      max-width: 100%; max-height: 92vh; border-radius: 18px 18px 0 0;
-      transform: translateY(100%); transition: transform .24s var(--spring);
-      padding-bottom: env(safe-area-inset-bottom, 0);
-    }
-    .compare-overlay.show .compare-box { transform: translateY(0); }
-    /* 모바일 최적화: 칼럼이 좁은 폭(min-width:220px)에 눌려 가로로 스크롤되던 걸(안에서 또
-       세로 스크롤까지 겹쳐 이중 스크롤) 세로로 쌓이는 1열 레이아웃으로 바꾼다 — 칼럼마다
-       자체 스크롤 없이 모달 전체가 하나의 세로 스크롤만 갖는다. */
-    .compare-cols { flex-direction: column; overflow-x: hidden; overflow-y: auto; gap: 16px; }
-    .compare-col { max-width: 100%; min-width: 0; }
-    .compare-col-body { overflow-y: visible; flex: none; }
-  }
   .compare-header-row {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     padding: 18px 20px 4px; flex: none;
@@ -1697,6 +1695,30 @@
   .compare-col-name { font-size: 12.5px; font-weight: 700; color: var(--gray-900); line-height: 1.5; }
   .compare-col-code { margin-top: 2px; font-size: 10px; color: var(--gray-400); }
   .compare-col-body { padding: 12px 14px; overflow-y: auto; flex: 1 1 auto; }
+  @media (max-width: 760px) {
+    .compare-overlay { align-items: flex-end; padding: 0; }
+    .compare-box {
+      max-width: 100%; max-height: 92vh; border-radius: 18px 18px 0 0;
+      transform: translateY(100%); transition: transform .24s var(--spring);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .compare-overlay.show .compare-box { transform: translateY(0); }
+    /* 모바일 최적화: 칼럼이 좁은 폭(min-width:220px)에 눌려 가로로 스크롤되던 걸(안에서 또
+       세로 스크롤까지 겹쳐 이중 스크롤) 세로로 쌓이는 1열 레이아웃으로 바꾼다 — 칼럼마다
+       자체 스크롤 없이 모달 전체가 하나의 세로 스크롤만 갖는다.
+       buggy: 이 미디어쿼리 블록이 전에는 위쪽 .compare-col 기본 정의보다 소스상 먼저
+       있었다 — 미디어쿼리는 명시도를 더해주지 않으므로, 같은 명시도에서는 "나중에 나온
+       규칙"이 이기는데 아래쪽 기본 .compare-col { flex: 1 1 0; ... }이 더 나중에 있어
+       모바일에서도 그 flex:1 1 0이 그대로 이겨버렸다 — column 방향 flex 컨테이너에서
+       flex-basis 0은 "세로 길이 0에서 시작해 남는 공간을 나눠 갖는다"는 뜻인데
+       .compare-cols 자신도 높이가 고정돼 있지 않아 나눠줄 공간이 없다 보니, 칼럼마다
+       실제 내용(도넛차트·성분 목록)이 있는데도 칼럼 자체가 거의 0px 높이로 찌그러지고
+       overflow:hidden에 가려 통째로 안 보이게 됐었다 — 도넛차트가 "안 보인다"던 문제의
+       원인. 이 블록을 기본 정의보다 뒤로 옮겨 모바일에서 flex:none이 확실히 이기게 한다. */
+    .compare-cols { flex-direction: column; overflow-x: hidden; overflow-y: auto; gap: 16px; }
+    .compare-col { max-width: 100%; min-width: 0; flex: none; }
+    .compare-col-body { overflow-y: visible; flex: none; }
+  }
   .ing-chip-list { display: flex; flex-wrap: wrap; gap: 5px; }
   .ing-chip {
     font-size: 11px; line-height: 1.5; padding: 3px 8px; border-radius: 10px; background: var(--gray-100);
@@ -2048,7 +2070,7 @@
     <p>⚠️ 본 홈페이지는 CMS Lab 내부 업무 참고용으로 제작되었습니다.</p>
     <p>사내 공유 외 외부 유출 및 재배포를 금지합니다.</p>
     <p>개선 제안이나 오류 사항은 RM팀 엠버에게 말씀 부탁드립니다🙏</p>
-    <p class="footer-updated">최종 업데이트: 2026-11-05 10:54 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
+    <p class="footer-updated">최종 업데이트: 2026-11-05 11:10 · <button type="button" id="changelogTrigger" class="footer-changelog-btn">업데이트 내역 보기</button></p>
   </div>
 </footer>
 
@@ -3758,6 +3780,8 @@ function closeCmdk() {
 }
 
 const CHANGELOG = [
+  { date: '2026-11-05', title: '전성분 탭 3열(모바일 2열) 보기에서 카드 비율이 깨지던 문제 수정 — 제목과 비교하기 체크박스를 세로로 배치하고 제목을 2줄로 정리' },
+  { date: '2026-11-05', title: '전성분 비교 모달 — 모바일에서 도넛차트가 칼럼 높이 계산 오류로 가려져 안 보이던 문제 수정' },
   { date: '2026-11-05', title: '전성분 비교 모달 상단 안내문구를 더 간결하게 다듬음' },
   { date: '2026-11-05', title: '"맨 위로"·"맨 아래로" 버튼을 스크롤 위치와 상관없이 항상 보이도록 변경, 위/아래 버튼 배치 순서 수정' },
   { date: '2026-11-05', title: '화면 하단에 "맨 아래로" 버튼 추가 — 기존 "맨 위로"와 짝을 이뤄 위/아래 양방향 스크롤 지원' },
